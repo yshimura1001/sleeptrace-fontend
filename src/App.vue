@@ -1,24 +1,37 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
-const message = ref('Waiting for API...')
+const sleepLogs = ref([])
 
-const checkConnection = async () => {
-  try {
-    // HonoのローカルサーバーURL（通常は8787ポート）
-    const response = await fetch('http://localhost:8787/api/check')
-    const data = await response.json()
-    message.value = data.message
-  } catch (error) {
-    message.value = 'Connection failed: ' + error
-  }
+// APIからデータを取得する関数
+const fetchSleepLogs = async () => {
+  const response = await fetch('http://localhost:8787/api/sleep')
+  sleepLogs.value = await response.json()
 }
+// 画面が読み込まれた時に実行
+onMounted(() => {
+  fetchSleepLogs()
+})
 </script>
 
 <template>
-  <div style="text-align: center; margin-top: 50px;">
-    <h1>Sleep App 疎通確認</h1>
-    <p>API Status: {{ message }}</p>
-    <button @click="checkConnection">Honoを呼び出す</button>
+<div>
+    <h2>睡眠ログ一覧</h2>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>日付</th>
+          <th>スコア</th>
+          <th>睡眠時間</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="log in sleepLogs" :key="log.id">
+          <td>{{ log.sleep_date }}</td>
+          <td>{{ log.sleep_score }}</td>
+          <td>{{ log.sleep_duration }}分</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>

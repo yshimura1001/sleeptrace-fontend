@@ -10,6 +10,11 @@ const router = createRouter({
       component: DashboardView,
     },
     {
+      path: '/input',
+      name: 'input',
+      component: () => import('../views/SleepInputView.vue'),
+    },
+    {
       path: '/about',
       name: 'about',
       // route level code-splitting

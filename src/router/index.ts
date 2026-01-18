@@ -15,6 +15,16 @@ const router = createRouter({
       component: () => import('../views/SleepInputView.vue'),
     },
     {
+      path: '/logs',
+      name: 'logs',
+      component: () => import('../views/SleepLogListView.vue'),
+    },
+    {
+      path: '/logs/:id',
+      name: 'log-detail',
+      component: () => import('../views/SleepLogDetailView.vue'),
+    },
+    {
       path: '/about',
       name: 'about',
       // route level code-splitting

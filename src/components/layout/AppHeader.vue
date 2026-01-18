@@ -8,11 +8,26 @@ import { RouterLink } from 'vue-router'
       <div class="flex items-center gap-8">
         <h1 class="text-xl font-bold text-foreground">SleepTrace</h1>
         <nav class="hidden md:flex gap-6">
-          <RouterLink to="/" class="text-sm font-medium transition-colors hover:text-primary text-muted-foreground" active-class="!text-foreground">
+          <RouterLink
+            to="/"
+            class="text-sm font-medium transition-colors hover:text-primary text-muted-foreground"
+            active-class="!text-foreground"
+          >
             ダッシュボード
           </RouterLink>
-          <RouterLink to="/input" class="text-sm font-medium transition-colors hover:text-primary text-muted-foreground" active-class="!text-foreground">
+          <RouterLink
+            to="/input"
+            class="text-sm font-medium transition-colors hover:text-primary text-muted-foreground"
+            active-class="!text-foreground"
+          >
             データ入力
+          </RouterLink>
+          <RouterLink
+            to="/logs"
+            class="text-sm font-medium transition-colors hover:text-primary text-muted-foreground"
+            active-class="!text-foreground"
+          >
+            睡眠ログ一覧
           </RouterLink>
         </nav>
       </div>

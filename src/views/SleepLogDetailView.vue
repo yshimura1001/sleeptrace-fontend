@@ -1,12 +1,25 @@
 <script setup lang="ts">
-import { ref, reactive, watch, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, watch, computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
+import { useToast } from '@/components/ui/toast/use-toast'
+const { toast } = useToast()
 const router = useRouter()
+const route = useRoute()
 const loading = ref(false)
 const error = ref('')
 
@@ -58,7 +71,6 @@ watch([() => formData.bed_time, () => formData.wakeup_time], ([bedTime, wakeupTi
   const [bedH, bedM] = bedTime.split(':').map(Number)
   const [wakeH, wakeM] = wakeupTime.split(':').map(Number)
 
-  // splitの結果がundefinedになる可能性への対処
   if (bedH === undefined || bedM === undefined || wakeH === undefined || wakeM === undefined) {
     formData.sleep_duration = null
     return
@@ -67,7 +79,6 @@ watch([() => formData.bed_time, () => formData.wakeup_time], ([bedTime, wakeupTi
   const bedMinutes = bedH * 60 + bedM
   let wakeMinutes = wakeH * 60 + wakeM
 
-  // 日付をまたぐ場合（起床時間が就寝時間より前の時刻の場合）
   if (wakeMinutes < bedMinutes) {
     wakeMinutes += 24 * 60
   }
@@ -75,27 +86,52 @@ watch([() => formData.bed_time, () => formData.wakeup_time], ([bedTime, wakeupTi
   formData.sleep_duration = wakeMinutes - bedMinutes
 })
 
+const fetchLog = async () => {
+  loading.value = true
+  try {
+    const id = route.params.id
+    const response = await fetch(`http://localhost:8787/api/sleep_logs/${id}`)
+    if (!response.ok) throw new Error('Failed to fetch sleep log')
+    const data = await response.json()
+
+    // Populate form data
+    formData.sleep_date = data.sleep_date
+    formData.sleep_score = data.sleep_score
+    formData.bed_time = data.bed_time
+    formData.wakeup_time = data.wakeup_time
+    formData.sleep_duration = data.sleep_duration
+    formData.wakeup_count = data.wakeup_count
+    formData.deep_sleep_continuity = data.deep_sleep_continuity
+    formData.deep_sleep_percentage = data.deep_sleep_percentage
+    formData.light_sleep_percentage = data.light_sleep_percentage
+    formData.rem_sleep_percentage = data.rem_sleep_percentage
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : 'Unknown error'
+  } finally {
+    loading.value = false
+  }
+}
+
 const submitForm = async () => {
   loading.value = true
   error.value = ''
 
   try {
-    // 数値型への変換
     const deep = Number(formData.deep_sleep_percentage || 0)
     const light = Number(formData.light_sleep_percentage || 0)
     const rem = Number(formData.rem_sleep_percentage || 0)
 
-    // バリデーション: 合計が100%になるかチェック
     if (deep + light + rem !== 100) {
       throw new Error(
         `深い睡眠・浅い睡眠・レム睡眠の割合の合計は100%である必要があります。（現在: ${deep + light + rem}%）`,
       )
     }
 
-    // 数値型への変換とnullチェック
     const payload = {
       ...formData,
       sleep_score: Number(formData.sleep_score),
+      bed_time: formData.bed_time ? formData.bed_time.slice(0, 5) : '',
+      wakeup_time: formData.wakeup_time ? formData.wakeup_time.slice(0, 5) : '',
       sleep_duration: Number(formData.sleep_duration),
       wakeup_count: Number(formData.wakeup_count),
       deep_sleep_continuity: Number(formData.deep_sleep_continuity),
@@ -104,8 +140,9 @@ const submitForm = async () => {
       rem_sleep_percentage: Number(formData.rem_sleep_percentage),
     }
 
-    const response = await fetch('http://localhost:8787/api/sleep_logs', {
-      method: 'POST',
+    const id = route.params.id
+    const response = await fetch(`http://localhost:8787/api/sleep_logs/${id}`, {
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -114,25 +151,79 @@ const submitForm = async () => {
 
     if (!response.ok) {
       const errorData = await response.json()
-      throw new Error(errorData.error || 'Failed to submit data')
+      let errorMessage = 'Failed to update data'
+      if (errorData.error) {
+        if (typeof errorData.error === 'string') {
+          errorMessage = errorData.error
+        } else if (typeof errorData.error === 'object') {
+          // Handle Zod error formatting if possible, or just stringify
+          // Hono zValidator typically returns { success: false, error: { issues: [...] } } in some configs,
+          // or straightforward error structure.
+          // If the backend returns { error: ZodError }, handle it.
+          errorMessage = JSON.stringify(errorData.error, null, 2)
+        }
+      }
+      throw new Error(errorMessage)
     }
 
-    // Success: redirect to dashboard
-    await router.push('/')
+    // Success
+    toast({
+      title: '更新しました',
+      description: '睡眠ログが正常に更新されました。',
+    })
+    // Optionally redirect or stay
+    // router.push('/logs')
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Unknown error'
   } finally {
     loading.value = false
   }
 }
+
+const handleDelete = async () => {
+  loading.value = true
+  error.value = ''
+
+  try {
+    const id = route.params.id
+    const response = await fetch(`http://localhost:8787/api/sleep_logs/${id}`, {
+      method: 'DELETE',
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.error || 'Failed to delete data')
+    }
+
+    toast({
+      title: '削除しました',
+      description: '睡眠ログを削除しました。',
+    })
+
+    router.push('/logs')
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : 'Unknown error'
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchLog()
+})
 </script>
 
 <template>
   <div class="max-w-3xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
     <Card>
       <CardHeader>
-        <CardTitle>睡眠データ登録</CardTitle>
-        <CardDescription>日々の睡眠データを記録しましょう。</CardDescription>
+        <div class="flex items-center justify-between">
+          <div>
+            <CardTitle>睡眠データ詳細・編集</CardTitle>
+            <CardDescription>睡眠データの確認と編集ができます。</CardDescription>
+          </div>
+          <Button variant="ghost" @click="router.push('/logs')"> 一覧に戻る </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <div
@@ -142,7 +233,11 @@ const submitForm = async () => {
           {{ error }}
         </div>
 
-        <form @submit.prevent="submitForm" class="space-y-6">
+        <div v-if="loading && !formData.sleep_date" class="p-4 text-center text-muted-foreground">
+          読み込み中...
+        </div>
+
+        <form v-else @submit.prevent="submitForm" class="space-y-6">
           <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
             <!-- Date -->
             <div class="space-y-2">
@@ -181,7 +276,7 @@ const submitForm = async () => {
               <Input
                 type="text"
                 id="sleep_duration"
-                :value="formattedSleepDuration"
+                v-model="formattedSleepDuration"
                 readonly
                 class="bg-muted"
               />
@@ -253,11 +348,38 @@ const submitForm = async () => {
             </div>
           </div>
 
-          <div class="flex justify-end space-x-4 pt-4">
-            <Button variant="outline" type="button" @click="router.push('/')"> キャンセル </Button>
-            <Button type="submit" :disabled="loading">
-              {{ loading ? '送信中...' : '保存' }}
-            </Button>
+          <div class="flex justify-between items-center pt-4">
+            <div>
+              <AlertDialog>
+                <AlertDialogTrigger as-child>
+                  <Button type="button" variant="destructive" :disabled="loading"> 削除 </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>本当に削除しますか？</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      この操作は取り消せません。この睡眠ログは完全に削除されます。
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                    <AlertDialogAction
+                      @click="handleDelete"
+                      class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >削除</AlertDialogAction
+                    >
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+            <div class="flex space-x-4">
+              <Button variant="outline" type="button" @click="router.push('/logs')">
+                キャンセル
+              </Button>
+              <Button type="submit" :disabled="loading">
+                {{ loading ? '更新中...' : '更新' }}
+              </Button>
+            </div>
           </div>
         </form>
       </CardContent>

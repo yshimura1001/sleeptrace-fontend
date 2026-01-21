@@ -115,7 +115,7 @@ const formatDateWithDay = (dateString: string) => {
   const date = new Date(dateString)
   const days = ['日', '月', '火', '水', '木', '金', '土']
   const day = days[date.getUTCDay()]
-  return `${dateString} (${day})`
+  return `${dateString.replaceAll('-', '/',0)} (${day})`
 }
 
 const formatMonthDisplay = (monthStr: string) => {
@@ -125,36 +125,31 @@ const formatMonthDisplay = (monthStr: string) => {
   return `${parts[0]}年 ${parseInt(parts[1])}月`
 }
 
+const getStyle = (val: number, min: number, max: number) => {
+  if (val < min) return 'bg-blue-400 text-white'
+  if (val > max) return 'bg-red-400 text-white'
+  return ''
+}
+
 const getColorClass = (columnName: string, value: number) => {
   switch (columnName) {
+    case 'sleep_score':
+      return getStyle(value, 80, 100)
+
     case 'wakeup_count':
-      // <= 1: default, else red
-      return value <= 1 ? '' : 'text-red-600 font-bold'
+      return getStyle(value, 0, 1)
 
     case 'deep_sleep_continuity':
-      // >= 70: default, else red
-      return value >= 70 ? '' : 'text-red-600 font-bold'
-
-    case 'sleep_duration':
-      // <= 600 (10 hours): default, else red
-      return value <= 600 ? '' : 'text-red-600 font-bold'
+      return getStyle(value, 70, 100)
 
     case 'deep_sleep_percentage':
-      // 20-60: default, <20: blue, >60: red
-      if (value < 20) return 'text-blue-600 font-bold'
-      if (value > 60) return 'text-red-600 font-bold'
-
-      return ''
+      return getStyle(value, 20, 60)
 
     case 'light_sleep_percentage':
-      // < 55: default, else red
-      return value < 55 ? '' : 'text-red-600 font-bold'
+      return getStyle(value, 0, 55)
 
     case 'rem_sleep_percentage':
-      // 10-30: default, <10: blue, >30: red
-      if (value < 10) return 'text-blue-600 font-bold'
-      if (value > 30) return 'text-red-600 font-bold'
-      return ''
+      return getStyle(value, 10, 30)
 
     default:
       return ''
@@ -211,7 +206,7 @@ const getColorClass = (columnName: string, value: number) => {
                 class="cursor-pointer hover:bg-muted/50 transition-colors"
               >
                 <TableCell class="font-medium">{{ formatDateWithDay(log.sleep_date) }}</TableCell>
-                <TableCell>
+                <TableCell :class="getColorClass('sleep_score', log.sleep_score)">
                   {{ log.sleep_score }}
                 </TableCell>
                 <TableCell>{{ log.bed_time }} - {{ log.wakeup_time }}</TableCell>

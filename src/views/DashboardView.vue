@@ -1,78 +1,41 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import { ref } from 'vue'
+import SleepSummaryTable from '@/components/dashboard/SleepSummaryTable.vue'
+import WeeklySleepTable from '@/components/dashboard/WeeklySleepTable.vue'
+import SleepTrendChart from '@/components/dashboard/SleepTrendChart.vue'
 
-interface SleepLog {
-  id: number
-  sleep_date: string
-  sleep_score: number
-  sleep_duration: number
-}
-
-const sleepLogs = ref<SleepLog[]>([])
+// 将来的にはここでデータをフェッチして各コンポーネントに渡す
 const loading = ref(false)
 const error = ref('')
-
-const fetchSleepLogs = async () => {
-  loading.value = true
-  try {
-    const response = await fetch('http://localhost:8787/api/sleep_logs')
-    if (!response.ok) throw new Error('Failed to fetch data')
-    sleepLogs.value = await response.json()
-  } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Unknown error'
-  } finally {
-    loading.value = false
-  }
-}
-
-onMounted(() => {
-  fetchSleepLogs()
-})
 </script>
 
 <template>
-  <div class="container mx-auto py-10">
-    <Card>
-      <CardHeader>
-        <CardTitle>ダッシュボード</CardTitle>
-        <CardDescription>最近の睡眠ログ一覧です。</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div v-if="loading" class="text-muted-foreground p-4">読み込み中...</div>
-        <div v-else-if="error" class="text-destructive p-4">{{ error }}</div>
+  <div class="container mx-auto py-8">
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold tracking-tight">ダッシュボード</h1>
+      <p class="text-muted-foreground">最近の睡眠ステータスの概要です。</p>
+    </div>
 
-        <Table v-else>
-          <TableHeader>
-            <TableRow>
-              <TableHead>日付</TableHead>
-              <TableHead>スコア</TableHead>
-              <TableHead>睡眠時間</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow v-for="log in sleepLogs" :key="log.id">
-              <TableCell class="font-medium">{{ log.sleep_date }}</TableCell>
-              <TableCell>{{ log.sleep_score }}</TableCell>
-              <TableCell>{{ log.sleep_duration }}分</TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+    <div v-if="loading" class="text-muted-foreground p-4">読み込み中...</div>
+    <div v-else-if="error" class="text-destructive p-4">{{ error }}</div>
+
+    <div v-else class="space-y-6">
+      <!-- 1. サマリー統計表 -->
+      <section>
+        <h2 class="text-xl font-semibold mb-3">統計</h2>
+        <SleepSummaryTable />
+      </section>
+
+      <!-- 2. 週間データ表 -->
+      <section>
+        <h2 class="text-xl font-semibold mb-3">週間データ</h2>
+        <WeeklySleepTable />
+      </section>
+
+      <!-- 3. トレンドチャート -->
+      <section>
+        <SleepTrendChart />
+      </section>
+    </div>
   </div>
 </template>

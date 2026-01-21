@@ -1,12 +1,42 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import SleepSummaryTable from '@/components/dashboard/SleepSummaryTable.vue'
 import WeeklySleepTable from '@/components/dashboard/WeeklySleepTable.vue'
 import SleepTrendChart from '@/components/dashboard/SleepTrendChart.vue'
 
-// 将来的にはここでデータをフェッチして各コンポーネントに渡す
-const loading = ref(false)
+const loading = ref(true)
 const error = ref('')
+const statsData = ref<any>(null)
+const weeklyData = ref<any[]>([])
+
+const fetchData = async () => {
+  loading.value = true
+  error.value = ''
+  try {
+    const [statsRes, weeklyRes] = await Promise.all([
+      fetch('http://localhost:8787/api/dashboard/statistics'),
+      fetch('http://localhost:8787/api/dashboard/weekly'),
+    ])
+
+    if (!statsRes.ok || !weeklyRes.ok) {
+      throw new Error('Failed to fetch dashboard data')
+    }
+
+    const statsJson = await statsRes.json()
+    const weeklyJson = await weeklyRes.json()
+
+    statsData.value = statsJson.data
+    weeklyData.value = weeklyJson.data
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : 'Unknown error'
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchData()
+})
 </script>
 
 <template>
@@ -20,21 +50,24 @@ const error = ref('')
     <div v-else-if="error" class="text-destructive p-4">{{ error }}</div>
 
     <div v-else class="space-y-6">
-      <!-- 1. サマリー統計表 -->
+      <!-- 1. 統計表 -->
       <section>
         <h2 class="text-xl font-semibold mb-3">統計</h2>
-        <SleepSummaryTable />
+        <SleepSummaryTable :stats-data="statsData" :total-count="statsData?.count" />
       </section>
 
       <!-- 2. 週間データ表 -->
       <section>
         <h2 class="text-xl font-semibold mb-3">週間データ</h2>
-        <WeeklySleepTable />
+        <WeeklySleepTable
+          :weekly-data="weeklyData"
+          :total-count="weeklyData.reduce((acc, curr) => acc + (curr.count || 0), 0)"
+        />
       </section>
 
       <!-- 3. トレンドチャート -->
       <section>
-        <SleepTrendChart />
+        <SleepTrendChart :weekly-data="weeklyData" />
       </section>
     </div>
   </div>

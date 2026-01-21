@@ -189,7 +189,8 @@ const getColorClass = (columnName: string, value: number) => {
               <TableRow>
                 <TableHead>日付</TableHead>
                 <TableHead>スコア</TableHead>
-                <TableHead>就寝時間 - 起床時間</TableHead>
+                <TableHead>入眠時間</TableHead>
+                <TableHead>起床時間</TableHead>
                 <TableHead>睡眠時間</TableHead>
                 <TableHead>目が覚めた回数</TableHead>
                 <TableHead>深い睡眠の持続性(点数)</TableHead>
@@ -209,7 +210,8 @@ const getColorClass = (columnName: string, value: number) => {
                 <TableCell :class="getColorClass('sleep_score', log.sleep_score)">
                   {{ log.sleep_score }}
                 </TableCell>
-                <TableCell>{{ log.bed_time }} - {{ log.wakeup_time }}</TableCell>
+                <TableCell>{{ log.bed_time }}</TableCell>
+                <TableCell>{{ log.wakeup_time }}</TableCell>
                 <TableCell :class="getColorClass('sleep_duration', log.sleep_duration)"
                   >{{
                     Math.floor(log.sleep_duration / 60)

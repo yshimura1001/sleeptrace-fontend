@@ -7,61 +7,82 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { computed } from 'vue'
 
 // ダミーデータまたはプロップスとして受け取る想定
 // 今回はサンプルに合わせて一旦内部で定義、後でProps化を検討
-const summaryData = [
-  {
-    label: '最小',
-    score: 83,
-    bedTime: '23:36',
-    wakeTime: '6:35',
-    awakeCount: 0,
-    deepSleepScore: 100,
-    duration: '6:19',
-    deep: '10%',
-    light: '60%',
-    rem: '20%',
-  },
-  {
-    label: '平均',
-    score: 85,
-    bedTime: '23:44',
-    wakeTime: '6:39',
-    awakeCount: 0,
-    deepSleepScore: 100,
-    duration: '6:39',
-    deep: '11%',
-    light: '62%',
-    rem: '24%',
-    isAverage: true, // 平均行の強調用
-  },
-  {
-    label: '最大',
-    score: 87,
-    bedTime: '23:58',
-    wakeTime: '6:50',
-    awakeCount: 0,
-    deepSleepScore: 100,
-    duration: '6:54',
-    deep: '12%',
-    light: '64%',
-    rem: '28%',
-  },
-  {
-    label: '参考値',
-    score: '80-100',
-    bedTime: 'なし',
-    wakeTime: 'なし',
-    awakeCount: '0-1回',
-    deepSleepScore: '70-100',
-    duration: 'なし',
-    deep: '20-60%',
-    light: '0-55%',
-    rem: '10-30%',
-    isReference: true, // 参考値行のスタイル用
-  },
-]
+const props = defineProps<{
+  statsData: any
+  totalCount?: number
+}>()
+
+const minutesToTime = (totalMin: number, wrap24 = false) => {
+  if (totalMin == null) return '-'
+  let h = Math.floor(totalMin / 60)
+  const m = Math.floor(totalMin % 60)
+  if (wrap24) {
+    h = h % 24
+  }
+  return `${h}:${m.toString().padStart(2, '0')}`
+}
+
+const computedSummaryData = computed(() => {
+  if (!props.statsData) return []
+  const s = props.statsData
+  return [
+    {
+      label: '最小',
+      score: s.min_score ?? '-',
+      bedTime: '-', // 時間のMin/Maxは未実装
+      wakeTime: '-',
+      awakeCount: s.min_wakeup_count ?? '-',
+      deepSleepScore: s.min_deep_sleep_continuity ?? '-',
+      duration: minutesToTime(s.min_duration),
+      deep: s.min_deep_sleep_percentage ? Math.round(s.min_deep_sleep_percentage) + '%' : '-',
+      light: s.min_light_sleep_percentage ? Math.round(s.min_light_sleep_percentage) + '%' : '-',
+      rem: s.min_rem_sleep_percentage ? Math.round(s.min_rem_sleep_percentage) + '%' : '-',
+    },
+    {
+      label: '平均',
+      score: s.avg_score ? Math.round(s.avg_score) : '-',
+      bedTime: minutesToTime(s.avg_bed_time_min, true),
+      wakeTime: minutesToTime(s.avg_wakeup_time_min, true),
+      awakeCount: s.avg_wakeup_count != null ? Math.round(s.avg_wakeup_count * 10) / 10 : '-',
+      deepSleepScore: s.avg_deep_sleep_continuity ? Math.round(s.avg_deep_sleep_continuity) : '-',
+      duration: minutesToTime(s.avg_duration),
+      deep: s.avg_deep_sleep_percentage ? Math.round(s.avg_deep_sleep_percentage) + '%' : '-',
+      light: s.avg_light_sleep_percentage ? Math.round(s.avg_light_sleep_percentage) + '%' : '-',
+      rem: s.avg_rem_sleep_percentage ? Math.round(s.avg_rem_sleep_percentage) + '%' : '-',
+      isAverage: true, // 平均行の強調用
+    },
+    {
+      label: '最大',
+      score: s.max_score ?? '-',
+      bedTime: '-',
+      wakeTime: '-',
+      awakeCount: s.max_wakeup_count ?? '-',
+      deepSleepScore: s.max_deep_sleep_continuity ?? '-',
+      duration: minutesToTime(s.max_duration),
+      deep: s.max_deep_sleep_percentage ? Math.round(s.max_deep_sleep_percentage) + '%' : '-',
+      light: s.max_light_sleep_percentage ? Math.round(s.max_light_sleep_percentage) + '%' : '-',
+      rem: s.max_rem_sleep_percentage ? Math.round(s.max_rem_sleep_percentage) + '%' : '-',
+    },
+    {
+      label: '参考値',
+      score: '80-100',
+      bedTime: 'なし',
+      wakeTime: 'なし',
+      awakeCount: '0-1回',
+      deepSleepScore: '70-100',
+      duration: 'なし',
+      deep: '20-60%',
+      light: '0-55%',
+      rem: '10-30%',
+      isReference: true, // 参考値行のスタイル用
+    },
+  ]
+})
+
 // 条件付きスタイル関数 (共通)
 // 値が基準より小さい場合は青背景・白文字、大きい場合は赤背景・白文字
 const getStyle = (val: number | string, min: number, max: number) => {
@@ -101,7 +122,7 @@ const getCellStyle = (row: any, field: string, min: number, max: number) => {
       </TableHeader>
       <TableBody>
         <TableRow
-          v-for="(row, index) in summaryData"
+          v-for="(row, index) in computedSummaryData"
           :key="index"
           :class="{
             'bg-muted/30 font-medium': row.isAverage,
@@ -123,5 +144,8 @@ const getCellStyle = (row: any, field: string, min: number, max: number) => {
         </TableRow>
       </TableBody>
     </Table>
+    <div class="bg-muted/50 p-2 text-right text-xs text-muted-foreground border-t">
+      集計データ数: {{ props.totalCount ?? '-' }}件
+    </div>
   </div>
 </template>

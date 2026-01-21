@@ -28,37 +28,67 @@ ChartJS.register(
   ChartDataLabels,
 )
 
-const chartData = computed<ChartData<'bar'>>(() => ({
-  labels: ['月', '火', '水', '木', '金', '土', '日'],
-  datasets: [
-    {
-      type: 'line' as const,
-      label: '深い睡眠 (%)',
-      backgroundColor: '#f87171',
-      borderColor: '#f87171',
-      data: [30, 24, 29, 21, 25, 29, 22],
-      yAxisID: 'y1',
-      tension: 0.3,
-      datalabels: {
-        align: 'top',
-        formatter: (value: number) => value + '%',
+const props = defineProps<{
+  weeklyData: any[]
+}>()
+
+const chartData = computed<ChartData<'bar'>>(() => {
+  // 曜日マッピング (月曜始まり: 1, 2, 3, 4, 5, 6, 0)
+  const days = [
+    { key: '1', label: '月' },
+    { key: '2', label: '火' },
+    { key: '3', label: '水' },
+    { key: '4', label: '木' },
+    { key: '5', label: '金' },
+    { key: '6', label: '土' },
+    { key: '0', label: '日' },
+  ]
+
+  const deepSleepData = days.map((day) => {
+    const data = props.weeklyData.find((d) => d.day_of_week === day.key)
+    return data ? Math.round(data.avg_deep_sleep_percentage) : 0
+  })
+
+  const durationData = days.map((day) => {
+    const data = props.weeklyData.find((d) => d.day_of_week === day.key)
+    // 分 -> 時間 (小数点第1位)
+    return data ? Math.round((data.avg_duration / 60) * 10) / 10 : 0
+  })
+
+  return {
+    labels: days.map((d) => d.label),
+    datasets: [
+      {
+        type: 'line' as const,
+        label: '深い睡眠 (%)',
+        backgroundColor: '#f87171',
+        borderColor: '#f87171',
+        data: deepSleepData,
+        yAxisID: 'y1',
+        tension: 0.3,
+        datalabels: {
+          align: 'top',
+          color: '#fff',
+          formatter: (value: number) => value + '%',
+        },
+      } as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+      {
+        type: 'bar',
+        label: '夜間の睡眠 (時間)',
+        backgroundColor: '#4d93f6',
+        data: durationData, // 時間単位 (例: 6.4時間)
+        yAxisID: 'y',
+        barPercentage: 0.6,
+        datalabels: {
+          anchor: 'end',
+          align: 'end',
+          color: '#333',
+          formatter: (value: number) => value.toFixed(1),
+        },
       },
-    } as any, // eslint-disable-line @typescript-eslint/no-explicit-any
-    {
-      type: 'bar',
-      label: '夜間の睡眠 (時間)',
-      backgroundColor: '#3b82f6',
-      data: [6.6, 6.8, 6.5, 6.9, 6.5, 6.3, 6.3], // 時間単位 (例: 6.4時間)
-      yAxisID: 'y',
-      barPercentage: 0.6,
-      datalabels: {
-        anchor: 'end',
-        align: 'end',
-        color: '#333',
-      },
-    },
-  ],
-}))
+    ],
+  }
+})
 
 const chartOptions: ChartOptions<'bar' | 'line'> = {
   responsive: true,

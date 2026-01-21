@@ -7,93 +7,64 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { computed } from 'vue'
 
-const weeklyData = [
-  {
-    day: '月',
-    score: 85,
-    bedTime: '23:45',
-    wakeTime: '6:40',
-    awakeCount: 0,
-    deepSleepScore: 100,
-    duration: '6:40',
-    deep: 10,
-    light: 62,
-    rem: 20,
-  },
-  {
-    day: '火',
-    score: 83,
-    bedTime: '23:36',
-    wakeTime: '6:35',
-    awakeCount: 1, // サンプルで赤くなってた箇所
-    deepSleepScore: 100,
-    duration: '6:49',
-    deep: 11,
-    light: 60,
-    rem: 24,
-  },
-  {
-    day: '水',
-    score: 87,
-    bedTime: '23:58',
-    wakeTime: '6:50',
-    awakeCount: 0,
-    deepSleepScore: 100,
-    duration: '6:32',
-    deep: 12,
-    light: 64,
-    rem: 22,
-  },
-  {
-    day: '木',
-    score: 84,
-    bedTime: '23:50',
-    wakeTime: '6:45',
-    awakeCount: 0,
-    deepSleepScore: 100,
-    duration: '6:54',
-    deep: 9,
-    light: 58,
-    rem: 28,
-  },
-  {
-    day: '金',
-    score: 86,
-    bedTime: '23:40',
-    wakeTime: '6:30',
-    awakeCount: 0,
-    deepSleepScore: 100,
-    duration: '6:30',
-    deep: 13,
-    light: 61,
-    rem: 21,
-  },
-  {
-    day: '土',
-    score: 88,
-    bedTime: '00:10',
-    wakeTime: '7:00',
-    awakeCount: 0,
-    deepSleepScore: 100,
-    duration: '6:20',
-    deep: 14,
-    light: 63,
-    rem: 19,
-  },
-  {
-    day: '日',
-    score: 85,
-    bedTime: '23:55',
-    wakeTime: '6:40',
-    awakeCount: 0,
-    deepSleepScore: 100,
-    duration: '6:19',
-    deep: 11,
-    light: 62,
-    rem: 20,
-  },
-]
+const props = defineProps<{
+  weeklyData: any[]
+  totalCount?: number
+}>()
+
+const minutesToTime = (totalMin: number, wrap24 = false) => {
+  let h = Math.floor(totalMin / 60)
+  const m = Math.floor(totalMin % 60)
+  if (wrap24) {
+    h = h % 24
+  }
+  return `${h}:${m.toString().padStart(2, '0')}`
+}
+
+const computedWeeklyData = computed(() => {
+  const days = [
+    { key: '1', label: '月' },
+    { key: '2', label: '火' },
+    { key: '3', label: '水' },
+    { key: '4', label: '木' },
+    { key: '5', label: '金' },
+    { key: '6', label: '土' },
+    { key: '0', label: '日' },
+  ]
+
+  return days.map((day) => {
+    const data = props.weeklyData.find((d) => d.day_of_week === day.key)
+    if (!data) {
+      return {
+        day: day.label,
+        score: '-',
+        bedTime: '-',
+        wakeTime: '-',
+        awakeCount: '-',
+        deepSleepScore: '-',
+        duration: '-',
+        deep: '-',
+        light: '-',
+        rem: '-',
+      }
+    }
+
+    return {
+      day: day.label,
+      score: Math.round(data.avg_score),
+      bedTime: minutesToTime(data.avg_bed_time_min, true),
+      wakeTime: minutesToTime(data.avg_wakeup_time_min, true),
+      awakeCount: Math.round(data.avg_wakeup_count * 10) / 10, // 小数点1位まで
+      deepSleepScore: Math.round(data.avg_deep_sleep_continuity),
+      duration: minutesToTime(data.avg_duration),
+      deep: Math.round(data.avg_deep_sleep_percentage),
+      light: Math.round(data.avg_light_sleep_percentage),
+      rem: Math.round(data.avg_rem_sleep_percentage),
+    }
+  })
+})
 
 // 条件付きスタイル関数 (共通)
 // 値が基準より小さい場合は青背景・白文字、大きい場合は赤背景・白文字
@@ -138,7 +109,7 @@ const getDurationStyle = (durationStr: string) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow v-for="(row, index) in weeklyData" :key="index">
+        <TableRow v-for="(row, index) in computedWeeklyData" :key="index">
           <TableCell class="font-medium">{{ row.day }}</TableCell>
           <TableCell :class="getStyle(row.score, 80, 100)">{{ row.score }}</TableCell>
           <TableCell>{{ row.bedTime }}</TableCell>
@@ -154,5 +125,8 @@ const getDurationStyle = (durationStr: string) => {
         </TableRow>
       </TableBody>
     </Table>
+    <div class="bg-muted/50 p-2 text-right text-xs text-muted-foreground border-t">
+      集計データ数: {{ props.totalCount ?? '-' }}件
+    </div>
   </div>
 </template>

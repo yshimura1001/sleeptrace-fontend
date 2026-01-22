@@ -29,6 +29,13 @@ import { RouterLink } from 'vue-router'
           >
             睡眠ログ一覧
           </RouterLink>
+          <RouterLink
+            to="/analysis"
+            class="text-sm font-medium transition-colors hover:text-primary text-muted-foreground"
+            active-class="!text-foreground"
+          >
+            分析
+          </RouterLink>
         </nav>
       </div>
       <!-- User Menu or Actions could go here -->

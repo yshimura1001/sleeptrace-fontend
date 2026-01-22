@@ -115,14 +115,14 @@ const formatDateWithDay = (dateString: string) => {
   const date = new Date(dateString)
   const days = ['日', '月', '火', '水', '木', '金', '土']
   const day = days[date.getUTCDay()]
-  return `${dateString.replaceAll('-', '/',0)} (${day})`
+  return `${dateString.replace(/-/g, '/')} (${day})`
 }
 
 const formatMonthDisplay = (monthStr: string) => {
   if (!monthStr) return ''
   const parts = monthStr.split('-')
   if (parts.length < 2) return monthStr
-  return `${parts[0]}年 ${parseInt(parts[1])}月`
+  return `${parts[0]}年 ${parseInt(parts[1] || '0')}月`
 }
 
 const getStyle = (val: number, min: number, max: number) => {

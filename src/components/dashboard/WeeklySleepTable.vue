@@ -68,7 +68,8 @@ const computedWeeklyData = computed(() => {
 
 // 条件付きスタイル関数 (共通)
 // 値が基準より小さい場合は青背景・白文字、大きい場合は赤背景・白文字
-const getStyle = (val: number, min: number, max: number) => {
+const getStyle = (val: number | string, min: number, max: number) => {
+  if (typeof val !== 'number') return ''
   if (val < min) return 'bg-blue-400 text-white'
   if (val > max) return 'bg-red-400 text-white'
   return ''

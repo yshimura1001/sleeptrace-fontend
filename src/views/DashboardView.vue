@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import SleepSummaryTable from '@/components/dashboard/SleepSummaryTable.vue'
 import WeeklySleepTable from '@/components/dashboard/WeeklySleepTable.vue'
 import SleepTrendChart from '@/components/dashboard/SleepTrendChart.vue'
+import SleepTrendTable from '@/components/dashboard/SleepTrendTable.vue'
 
 const loading = ref(true)
 const error = ref('')
@@ -50,7 +51,13 @@ onMounted(() => {
     <div v-else-if="error" class="text-destructive p-4">{{ error }}</div>
 
     <div v-else class="space-y-6">
-      <!-- 1. 統計表 -->
+      <!-- 1. トレンド分析 -->
+      <section>
+        <h2 class="text-xl font-semibold mb-3">トレンド</h2>
+        <SleepTrendTable :trends="statsData?.trends" :total-count="statsData?.count" />
+      </section>
+
+      <!-- 2. 統計表 -->
       <section>
         <h2 class="text-xl font-semibold mb-3">統計</h2>
         <SleepSummaryTable :stats-data="statsData" :total-count="statsData?.count" />

@@ -15,6 +15,7 @@ import {
 import { Bar } from 'vue-chartjs'
 import { computed } from 'vue'
 import ChartDataLabels from 'chartjs-plugin-datalabels'
+import { useDark } from '@vueuse/core'
 
 ChartJS.register(
   CategoryScale,
@@ -27,6 +28,10 @@ ChartJS.register(
   Legend,
   ChartDataLabels,
 )
+
+const isDark = useDark()
+const textColor = computed(() => isDark.value ? '#e5e7eb' : '#333')
+const gridColor = computed(() => isDark.value ? '#374151' : '#e5e7eb')
 
 const props = defineProps<{
   weeklyData: any[]
@@ -68,7 +73,7 @@ const chartData = computed<ChartData<'bar'>>(() => {
         tension: 0.3,
         datalabels: {
           align: 'top',
-          color: '#fff',
+          color: textColor.value,
           formatter: (value: number) => value + '%',
         },
       } as any, // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -82,7 +87,7 @@ const chartData = computed<ChartData<'bar'>>(() => {
         datalabels: {
           anchor: 'end',
           align: 'end',
-          color: '#333',
+          color: textColor.value,
           formatter: (value: number) => value.toFixed(1),
         },
       },
@@ -90,7 +95,7 @@ const chartData = computed<ChartData<'bar'>>(() => {
   }
 })
 
-const chartOptions: ChartOptions<'bar' | 'line'> = {
+const chartOptions = computed<ChartOptions<'bar'>>(() => ({
   responsive: true,
   maintainAspectRatio: false,
   layout: {
@@ -101,26 +106,36 @@ const chartOptions: ChartOptions<'bar' | 'line'> = {
   plugins: {
     legend: {
       position: 'bottom',
+      labels: {
+        color: textColor.value
+      }
     },
     tooltip: {
       mode: 'index',
       intersect: false,
     },
     datalabels: {
-      color: '#333',
+      color: textColor.value,
       font: {
         weight: 'bold',
       },
     } as any, // Plugin specific types might be tricky, casting to any for plugins config
   },
   scales: {
+    x: {
+      grid: { display: false },
+      ticks: { color: textColor.value }
+    },
     y: {
       type: 'linear',
       display: true,
       position: 'left',
+      grid: { color: gridColor.value },
+      ticks: { color: textColor.value },
       title: {
         display: true,
         text: '睡眠時間 (h)',
+        color: textColor.value
       },
       min: 0,
       suggestedMax: 8, // データラベルが見切れないように余白を確保
@@ -132,15 +147,17 @@ const chartOptions: ChartOptions<'bar' | 'line'> = {
       grid: {
         drawOnChartArea: false,
       },
+      ticks: { color: textColor.value },
       title: {
         display: true,
         text: '深い睡眠 (%)',
+        color: textColor.value
       },
       min: 0,
       max: 50, // パーセンテージなので適宜調整
     },
   },
-}
+}))
 </script>
 
 <template>

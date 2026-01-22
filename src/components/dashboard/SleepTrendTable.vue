@@ -35,7 +35,7 @@ const getTrendInfo = (key: string, slope: number) => {
   const isUp = slope > 0
   const isDown = slope < 0
 
-  if (!isUp && !isDown) return { text: '-', color: 'text-gray-500', icon: Minus }
+  if (!isUp && !isDown) return { text: '-', color: 'text-muted-foreground', icon: Minus }
 
   // 改善 (Good) or 悪化 (Bad) determination
   let isImprovement = false
@@ -57,8 +57,8 @@ const getTrendInfo = (key: string, slope: number) => {
   }
 
   const text = isImprovement ? '改善' : '悪化'
-  // 改善=Blue, 悪化=Red
-  const color = isImprovement ? 'text-blue-500' : 'text-red-500'
+  // 改善=Green, 悪化=Red
+  const color = isImprovement ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
   const icon = isUp ? ArrowUp : ArrowDown
 
   return { text, color, icon }
@@ -90,7 +90,7 @@ const getTrendInfo = (key: string, slope: number) => {
               <component :is="getTrendInfo(item.key, item.slope).icon" class="w-5 h-5 mr-1" />
               {{ getTrendInfo(item.key, item.slope).text }}
             </div>
-            <div v-else class="text-gray-500 flex items-center justify-center">
+            <div v-else class="text-muted-foreground flex items-center justify-center">
               <Minus class="w-5 h-5" />
             </div>
           </TableCell>

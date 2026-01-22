@@ -68,13 +68,13 @@ const computedSummaryData = computed(() => {
       rem: s.max_rem_sleep_percentage ? Math.round(s.max_rem_sleep_percentage) + '%' : '-',
     },
     {
-      label: '参考値',
-      score: '80-100',
+      label: '基準値',
+      score: '80-100点',
       bedTime: 'なし',
       wakeTime: 'なし',
       awakeCount: '0-1回',
-      deepSleepScore: '70-100',
-      duration: 'なし',
+      deepSleepScore: '70-100点',
+      duration: '10:00以下',
       deep: '20-60%',
       light: '0-55%',
       rem: '10-30%',
@@ -101,6 +101,26 @@ const getCellStyle = (row: any, field: string, min: number, max: number) => {
   }
   return getStyle(val, min, max)
 }
+
+const getDurationCellStyle = (row: any) => {
+  if (row.isReference) return ''
+  const durationStr = row.duration
+  if (typeof durationStr !== 'string' || !durationStr.includes(':')) return ''
+
+  const parts = durationStr.split(':')
+  if (parts.length < 2) return ''
+  const h = Number(parts[0])
+  const m = Number(parts[1])
+
+  if (isNaN(h) || isNaN(m)) return ''
+
+  // 10時間 (600分) より長い場合は赤色
+  const totalMinutes = h * 60 + m
+  if (totalMinutes > 600) {
+    return 'bg-red-400 text-white dark:bg-red-600 dark:text-gray-100'
+  }
+  return ''
+}
 </script>
 
 <template>
@@ -114,7 +134,7 @@ const getCellStyle = (row: any, field: string, min: number, max: number) => {
           <TableHead>起床時間</TableHead>
           <TableHead>目が覚めた<br />回数</TableHead>
           <TableHead>深い睡眠の<br />持続性</TableHead>
-          <TableHead>夜間の睡眠<br />(時間)</TableHead>
+          <TableHead>夜間の睡眠時間</TableHead>
           <TableHead>深い睡眠<br />(%)</TableHead>
           <TableHead>浅い睡眠<br />(%)</TableHead>
           <TableHead>レム睡眠<br />(%)</TableHead>
@@ -137,7 +157,7 @@ const getCellStyle = (row: any, field: string, min: number, max: number) => {
           <TableCell :class="getCellStyle(row, 'deepSleepScore', 70, 100)">{{
             row.deepSleepScore
           }}</TableCell>
-          <TableCell>{{ row.duration }}</TableCell>
+          <TableCell :class="getDurationCellStyle(row)">{{ row.duration }}</TableCell>
           <TableCell :class="getCellStyle(row, 'deep', 20, 60)">{{ row.deep }}</TableCell>
           <TableCell :class="getCellStyle(row, 'light', 0, 55)">{{ row.light }}</TableCell>
           <TableCell :class="getCellStyle(row, 'rem', 10, 30)">{{ row.rem }}</TableCell>

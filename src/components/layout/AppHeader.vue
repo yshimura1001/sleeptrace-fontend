@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
+import ThemeToggle from '@/components/layout/ThemeToggle.vue'
 </script>
 
 <template>
@@ -38,7 +39,9 @@ import { RouterLink } from 'vue-router'
           </RouterLink>
         </nav>
       </div>
-      <!-- User Menu or Actions could go here -->
+      <div class="flex items-center gap-4">
+        <ThemeToggle />
+      </div>
     </div>
   </header>
 </template>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
+import { useDark } from '@vueuse/core'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -84,25 +85,32 @@ const calculateTrendLine = (data: number[]) => {
   return x.map(xi => slope * xi + intercept)
 }
 
+// --- Color Logic for Charts ---
+const isDark = useDark()
+const textColor = computed(() => isDark.value ? '#e5e7eb' : '#666') // gray-200 vs gray-500
+const gridColor = computed(() => isDark.value ? '#374151' : '#e5e7eb') // gray-700 vs gray-200
+
 // --- Common Chart Options ---
-const commonOptions: ChartOptions<'line'> = {
+const commonOptions = computed<ChartOptions<'line'>>(() => ({
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
     datalabels: {
       align: 'top',
-      color: '#666',
+      color: textColor.value,
       font: { size: 10 },
       formatter: (value: number) => Math.round(value * 10) / 10
     },
     legend: {
       position: 'top',
       labels: {
+        color: textColor.value,
         usePointStyle: true,
         boxWidth: 20,
         generateLabels: (chart) => {
           const labels = ChartJS.defaults.plugins.legend.labels.generateLabels(chart)
           labels.forEach((label) => {
+            label.fontColor = textColor.value
             if (label.datasetIndex === 0) {
               label.pointStyle = 'line'
             }
@@ -114,41 +122,49 @@ const commonOptions: ChartOptions<'line'> = {
   },
   scales: {
     x: {
-      grid: { display: false }
+      grid: { display: false },
+      ticks: { color: textColor.value }
+    },
+    y: {
+      grid: { color: gridColor.value },
+      ticks: { color: textColor.value }
     }
   }
-}
+}))
 
 // Specific options for charts with custom scales
-const deepContinuityOptions: ChartOptions<'line'> = {
-  ...commonOptions,
+const deepContinuityOptions = computed<ChartOptions<'line'>>(() => ({
+  ...commonOptions.value,
   scales: {
-    ...commonOptions.scales,
+    ...commonOptions.value.scales,
     y: {
+      ...commonOptions.value.scales?.y,
       max: 100
     }
   }
-}
+}))
 
-const deepPercentageOptions: ChartOptions<'line'> = {
-  ...commonOptions,
+const deepPercentageOptions = computed<ChartOptions<'line'>>(() => ({
+  ...commonOptions.value,
   scales: {
-    ...commonOptions.scales,
+    ...commonOptions.value.scales,
     y: {
+      ...commonOptions.value.scales?.y,
       min: 10
     }
   }
-}
+}))
 
-const lightPercentageOptions: ChartOptions<'line'> = {
-  ...commonOptions,
+const lightPercentageOptions = computed<ChartOptions<'line'>>(() => ({
+  ...commonOptions.value,
   scales: {
-    ...commonOptions.scales,
+    ...commonOptions.value.scales,
     y: {
+      ...commonOptions.value.scales?.y,
       max: 70
     }
   }
-}
+}))
 
 
 

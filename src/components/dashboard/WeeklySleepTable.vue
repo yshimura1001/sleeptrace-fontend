@@ -68,14 +68,38 @@ const computedWeeklyData = computed(() => {
 
 // 条件付きスタイル関数 (共通)
 // 値が基準より小さい場合は青背景・白文字、大きい場合は赤背景・白文字
-const getStyle = (val: number | string, min: number, max: number) => {
+// 判定ロジック: 「悪い」値を赤くする。
+
+// 値が基準より小さいと「悪い」場合 (点数など) -> 赤
+const getLowIsBadStyle = (val: number | string, min: number) => {
   if (typeof val !== 'number') return ''
-  if (val < min) return 'bg-blue-400 text-white'
-  if (val > max) return 'bg-red-400 text-white'
+  if (val < min) return 'bg-red-400 text-white dark:bg-red-600 dark:text-gray-100'
+  return ''
+}
+
+// 値が基準より大きいと「悪い」場合 (回数など) -> 赤
+const getHighIsBadStyle = (val: number | string, max: number) => {
+  if (typeof val !== 'number') return ''
+  if (val > max) return 'bg-red-400 text-white dark:bg-red-600 dark:text-gray-100'
+  return ''
+}
+
+// 範囲外が「悪い」場合 (割合など) -> 赤
+const getRangeOutStyle = (val: number | string, min: number, max: number) => {
+  if (typeof val !== 'number') {
+     // %つき文字列のパースなどは呼び出し元で行う想定、またはここで対応
+     if (typeof val === 'string' && val.includes('%')) {
+        val = parseFloat(val.replace('%', ''))
+     } else {
+        return ''
+     }
+  }
+  if (val < min || val > max) return 'bg-red-400 text-white dark:bg-red-600 dark:text-gray-100'
   return ''
 }
 
 // 時間文字列 (H:MM) を分に変換して判定
+// 基準: 6:00 (360分) 未満 or 10:00 (600分) 超過 -> 赤
 const getDurationStyle = (durationStr: string) => {
   if (!durationStr) return ''
   const parts = durationStr.split(':')
@@ -87,8 +111,10 @@ const getDurationStyle = (durationStr: string) => {
   if (isNaN(h) || isNaN(m)) return ''
 
   const totalMin = h * 60 + m
-  // 基準: 6:00 (360分) - 10:00 (600分)
-  return getStyle(totalMin, 360, 600)
+  if (totalMin < 360 || totalMin > 600) {
+     return 'bg-red-400 text-white dark:bg-red-600 dark:text-gray-100'
+  }
+  return ''
 }
 </script>
 
@@ -112,17 +138,17 @@ const getDurationStyle = (durationStr: string) => {
       <TableBody>
         <TableRow v-for="(row, index) in computedWeeklyData" :key="index">
           <TableCell class="font-medium">{{ row.day }}</TableCell>
-          <TableCell :class="getStyle(row.score, 80, 100)">{{ row.score }}</TableCell>
+          <TableCell :class="getLowIsBadStyle(row.score, 80)">{{ row.score }}</TableCell>
           <TableCell>{{ row.bedTime }}</TableCell>
           <TableCell>{{ row.wakeTime }}</TableCell>
-          <TableCell :class="getStyle(row.awakeCount, 0, 1)">{{ row.awakeCount }}</TableCell>
-          <TableCell :class="getStyle(row.deepSleepScore, 90, 100)">{{
+          <TableCell :class="getHighIsBadStyle(row.awakeCount, 1)">{{ row.awakeCount }}</TableCell>
+          <TableCell :class="getLowIsBadStyle(row.deepSleepScore, 70)">{{
             row.deepSleepScore
           }}</TableCell>
           <TableCell :class="getDurationStyle(row.duration)">{{ row.duration }}</TableCell>
-          <TableCell :class="getStyle(row.deep, 10, 20)">{{ row.deep }}%</TableCell>
-          <TableCell :class="getStyle(row.light, 50, 60)">{{ row.light }}%</TableCell>
-          <TableCell :class="getStyle(row.rem, 20, 30)">{{ row.rem }}%</TableCell>
+          <TableCell :class="getLowIsBadStyle(row.deep, 20)">{{ row.deep }}%</TableCell>
+          <TableCell :class="getHighIsBadStyle(row.light, 55)">{{ row.light }}%</TableCell>
+          <TableCell :class="getRangeOutStyle(row.rem, 10, 30)">{{ row.rem }}%</TableCell>
         </TableRow>
       </TableBody>
     </Table>

@@ -89,14 +89,27 @@ const commonOptions: ChartOptions<'line'> = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
-    legend: {
-      position: 'top',
-    },
     datalabels: {
       align: 'top',
       color: '#666',
       font: { size: 10 },
       formatter: (value: number) => Math.round(value * 10) / 10
+    },
+    legend: {
+      position: 'top',
+      labels: {
+        usePointStyle: true,
+        boxWidth: 20,
+        generateLabels: (chart) => {
+          const labels = ChartJS.defaults.plugins.legend.labels.generateLabels(chart)
+          labels.forEach((label) => {
+            if (label.datasetIndex === 0) {
+              label.pointStyle = 'line'
+            }
+          })
+          return labels
+        }
+      }
     }
   },
   scales: {
@@ -137,6 +150,26 @@ const lightPercentageOptions: ChartOptions<'line'> = {
   }
 }
 
+
+
+// --- Helper: Create Dashed Line Canvas for Legend ---
+const createDashedLineCanvas = (color: string) => {
+  const canvas = document.createElement('canvas')
+  canvas.width = 30
+  canvas.height = 10
+  const ctx = canvas.getContext('2d')
+  if (ctx) {
+    ctx.strokeStyle = color
+    ctx.lineWidth = 2
+    ctx.setLineDash([4, 4])
+    ctx.beginPath()
+    ctx.moveTo(0, 5)
+    ctx.lineTo(30, 5)
+    ctx.stroke()
+  }
+  return canvas
+}
+
 // --- Chart 1: Wakeup Count ---
 const wakeupChartData = computed<ChartData<'line'>>(() => {
   const labels = sleepLogs.value.map(l => l.sleep_date)
@@ -157,16 +190,20 @@ const wakeupChartData = computed<ChartData<'line'>>(() => {
         label: '基準 (1回)',
         data: labels.map(() => 1),
         borderColor: '#f87171', // red-400
+        backgroundColor: '#f87171',
         borderWidth: 2,
         pointRadius: 0,
+        pointStyle: 'line',
         datalabels: { display: false }
       },
       {
         label: 'トレンド',
         data: trend,
         borderColor: '#93c5fd', // blue-300
+        backgroundColor: '#93c5fd',
         borderDash: [5, 5],
         pointRadius: 0,
+        pointStyle: createDashedLineCanvas('#93c5fd'),
         datalabels: { display: false }
       }
     ]
@@ -193,16 +230,20 @@ const lightSleepChartData = computed<ChartData<'line'>>(() => {
         label: '基準 (55%)',
         data: labels.map(() => 55),
         borderColor: '#f87171', // red-400
+        backgroundColor: '#f87171',
         borderWidth: 2,
         pointRadius: 0,
+        pointStyle: 'line',
         datalabels: { display: false }
       },
       {
         label: 'トレンド',
         data: trend,
         borderColor: '#93c5fd',
+        backgroundColor: '#93c5fd',
         borderDash: [5, 5],
         pointRadius: 0,
+        pointStyle: createDashedLineCanvas('#93c5fd'),
         datalabels: { display: false }
       }
     ]
@@ -229,16 +270,20 @@ const deepSleepContinuityChartData = computed<ChartData<'line'>>(() => {
         label: '基準 (70点)',
         data: labels.map(() => 70),
         borderColor: '#f87171',
+        backgroundColor: '#f87171',
         borderWidth: 2,
         pointRadius: 0,
+        pointStyle: 'line',
         datalabels: { display: false }
       },
       {
         label: 'トレンド',
         data: trend,
         borderColor: '#93c5fd',
+        backgroundColor: '#93c5fd',
         borderDash: [5, 5],
         pointRadius: 0,
+        pointStyle: createDashedLineCanvas('#93c5fd'),
         datalabels: { display: false }
       }
     ]
@@ -265,24 +310,30 @@ const deepSleepPercentageChartData = computed<ChartData<'line'>>(() => {
         label: '上限 (60%)',
         data: labels.map(() => 60),
         borderColor: '#eab308', // yellow-500
+        backgroundColor: '#eab308',
         borderWidth: 2,
         pointRadius: 0,
+        pointStyle: 'line',
         datalabels: { display: false }
       },
       {
         label: '下限 (20%)',
         data: labels.map(() => 20),
         borderColor: '#f87171', // red-400
+        backgroundColor: '#f87171',
         borderWidth: 2,
         pointRadius: 0,
+        pointStyle: 'line',
         datalabels: { display: false }
       },
       {
         label: 'トレンド',
         data: trend,
         borderColor: '#93c5fd',
+        backgroundColor: '#93c5fd',
         borderDash: [5, 5],
         pointRadius: 0,
+        pointStyle: createDashedLineCanvas('#93c5fd'),
         datalabels: { display: false }
       }
     ]
@@ -293,7 +344,7 @@ const deepSleepPercentageChartData = computed<ChartData<'line'>>(() => {
 
 <template>
   <div class="container mx-auto py-8 px-4">
-    <h1 class="text-3xl font-bold mb-6">睡眠分析</h1>
+    <h1 class="text-2xl font-bold tracking-tight mb-6">睡眠分析</h1>
 
     <div v-if="loading" class="text-center py-10">読み込み中...</div>
     <div v-else-if="error" class="text-center text-red-500 py-10">{{ error }}</div>
@@ -338,6 +389,10 @@ const deepSleepPercentageChartData = computed<ChartData<'line'>>(() => {
           <Line :data="lightSleepChartData" :options="lightPercentageOptions" />
         </CardContent>
       </Card>
+
+      <div class="text-right text-sm text-muted-foreground">
+        集計データ数：{{ sleepLogs.length }}件
+      </div>
     </div>
   </div>
 </template>

@@ -37,6 +37,13 @@ import ThemeToggle from '@/components/layout/ThemeToggle.vue'
           >
             分析
           </RouterLink>
+          <RouterLink
+            to="/data"
+            class="text-sm font-medium transition-colors hover:text-primary text-muted-foreground"
+            active-class="!text-foreground"
+          >
+            データ管理
+          </RouterLink>
         </nav>
       </div>
       <div class="flex items-center gap-4">

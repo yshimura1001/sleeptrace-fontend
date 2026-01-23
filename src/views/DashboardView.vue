@@ -7,6 +7,7 @@ import SleepTrendTable from '@/components/dashboard/SleepTrendTable.vue'
 
 const loading = ref(true)
 const error = ref('')
+
 const statsData = ref<any>(null)
 const weeklyData = ref<any[]>([])
 

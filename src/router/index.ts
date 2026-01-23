@@ -15,6 +15,11 @@ const router = createRouter({
       component: () => import('../views/SleepInputView.vue'),
     },
     {
+      path: '/data',
+      name: 'data-management',
+      component: () => import('../views/DataManagementView.vue'),
+    },
+    {
       path: '/logs',
       name: 'logs',
       component: () => import('../views/SleepLogListView.vue'),

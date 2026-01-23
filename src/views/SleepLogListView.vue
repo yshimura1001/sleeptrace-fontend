@@ -193,10 +193,10 @@ const getColorClass = (columnName: string, value: number) => {
                 <TableHead>起床時間</TableHead>
                 <TableHead>睡眠時間</TableHead>
                 <TableHead>目が覚めた回数</TableHead>
-                <TableHead>深い睡眠の持続性(点数)</TableHead>
-                <TableHead>深い睡眠の割合(%)</TableHead>
-                <TableHead>浅い睡眠の割合(%)</TableHead>
-                <TableHead>レム睡眠の割合(%)</TableHead>
+                <TableHead>深い睡眠の<br>持続性(点数)</TableHead>
+                <TableHead>深い睡眠の<br>割合(%)</TableHead>
+                <TableHead>浅い睡眠の<br>割合(%)</TableHead>
+                <TableHead>レム睡眠の<br>割合(%)</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

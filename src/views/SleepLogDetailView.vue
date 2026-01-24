@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, watch, computed, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -50,41 +50,9 @@ const formData = reactive<SleepLogForm>({
   rem_sleep_percentage: null,
 })
 
-// 睡眠時間をHH:MM形式で表示するためのComputedプロパティ
-const formattedSleepDuration = computed(() => {
-  if (formData.sleep_duration === null) return ''
-  const hours = Math.floor(formData.sleep_duration / 60)
-  const minutes = formData.sleep_duration % 60
-  // HH:MM形式にゼロ埋め
-  const h = hours.toString().padStart(2, '0')
-  const m = minutes.toString().padStart(2, '0')
-  return `${h}:${m}`
-})
+// 睡眠時間の時間 (HH:MM)
+const durationTime = ref<string>('')
 
-// 就寝・起床時間から睡眠時間（分）を自動計算する
-watch([() => formData.bed_time, () => formData.wakeup_time], ([bedTime, wakeupTime]) => {
-  if (!bedTime || !wakeupTime) {
-    formData.sleep_duration = null
-    return
-  }
-
-  const [bedH, bedM] = bedTime.split(':').map(Number)
-  const [wakeH, wakeM] = wakeupTime.split(':').map(Number)
-
-  if (bedH === undefined || bedM === undefined || wakeH === undefined || wakeM === undefined) {
-    formData.sleep_duration = null
-    return
-  }
-
-  const bedMinutes = bedH * 60 + bedM
-  let wakeMinutes = wakeH * 60 + wakeM
-
-  if (wakeMinutes < bedMinutes) {
-    wakeMinutes += 24 * 60
-  }
-
-  formData.sleep_duration = wakeMinutes - bedMinutes
-})
 
 const fetchLog = async () => {
   loading.value = true
@@ -100,6 +68,14 @@ const fetchLog = async () => {
     formData.bed_time = data.bed_time
     formData.wakeup_time = data.wakeup_time
     formData.sleep_duration = data.sleep_duration
+
+    // 時間・分の初期値を設定 (分 -> HH:MM)
+    if (data.sleep_duration) {
+      const h = Math.floor(data.sleep_duration / 60)
+      const m = data.sleep_duration % 60
+      durationTime.value = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+    }
+
     formData.wakeup_count = data.wakeup_count
     formData.deep_sleep_continuity = data.deep_sleep_continuity
     formData.deep_sleep_percentage = data.deep_sleep_percentage
@@ -117,6 +93,16 @@ const submitForm = async () => {
   error.value = ''
 
   try {
+    // 睡眠時間の計算 (HH:MM -> 分)
+    let totalMinutes = 0
+    if (durationTime.value) {
+      const parts = durationTime.value.split(':').map(Number)
+      if (parts.length === 2 && parts[0] !== undefined && parts[1] !== undefined) {
+        totalMinutes = parts[0] * 60 + parts[1]
+      }
+    }
+    formData.sleep_duration = totalMinutes > 0 ? totalMinutes : null
+
     const deep = Number(formData.deep_sleep_percentage || 0)
     const light = Number(formData.light_sleep_percentage || 0)
     const rem = Number(formData.rem_sleep_percentage || 0)
@@ -270,15 +256,14 @@ onMounted(() => {
               <Input type="time" id="wakeup_time" v-model="formData.wakeup_time" required />
             </div>
 
-            <!-- Sleep Duration (Read-only) -->
+            <!-- Sleep Duration -->
             <div class="space-y-2">
-              <Label for="sleep_duration">睡眠時間 (自動計算)</Label>
+              <Label for="duration_time">睡眠時間</Label>
               <Input
-                type="text"
-                id="sleep_duration"
-                v-model="formattedSleepDuration"
-                readonly
-                class="bg-muted"
+                type="time"
+                id="duration_time"
+                v-model="durationTime"
+                required
               />
             </div>
 

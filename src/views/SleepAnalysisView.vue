@@ -133,6 +133,21 @@ const commonOptions = computed<ChartOptions<'line'>>(() => ({
 }))
 
 // Specific options for charts with custom scales
+const wakeupOptions = computed<ChartOptions<'line'>>(() => ({
+  ...commonOptions.value,
+  scales: {
+    ...commonOptions.value.scales,
+    y: {
+      ...commonOptions.value.scales?.y,
+      ticks: {
+        ...commonOptions.value.scales?.y?.ticks,
+        stepSize: 1
+      }
+    } as any // eslint-disable-line @typescript-eslint/no-explicit-any
+  }
+}))
+
+// Specific options for charts with custom scales
 const deepContinuityOptions = computed<ChartOptions<'line'>>(() => ({
   ...commonOptions.value,
   scales: {
@@ -372,7 +387,7 @@ const deepSleepPercentageChartData = computed<ChartData<'line'>>(() => {
           <CardTitle>目が覚めた回数</CardTitle>
         </CardHeader>
         <CardContent class="h-[400px]">
-          <Line :data="wakeupChartData" :options="commonOptions" />
+          <Line :data="wakeupChartData" :options="wakeupOptions" />
         </CardContent>
       </Card>
 

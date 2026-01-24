@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -17,11 +17,15 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { useToast } from '@/components/ui/toast/use-toast'
+import { authFetch } from '@/utils/api'
+
 const { toast } = useToast()
 const router = useRouter()
 const route = useRoute()
 const loading = ref(false)
 const error = ref('')
+
+const isViewMode = computed(() => !!route.query.viewUser)
 
 // フォームの型定義
 interface SleepLogForm {
@@ -53,12 +57,15 @@ const formData = reactive<SleepLogForm>({
 // 睡眠時間の時間 (HH:MM)
 const durationTime = ref<string>('')
 
-
 const fetchLog = async () => {
   loading.value = true
   try {
     const id = route.params.id
-    const response = await fetch(`http://localhost:8787/api/sleep_logs/${id}`)
+    let url = `http://localhost:8787/api/sleep_logs/${id}`
+    if (isViewMode.value) {
+        url += `?targetUserId=${route.query.viewUser}`
+    }
+    const response = await authFetch(url)
     if (!response.ok) throw new Error('Failed to fetch sleep log')
     const data = await response.json()
 
@@ -127,7 +134,7 @@ const submitForm = async () => {
     }
 
     const id = route.params.id
-    const response = await fetch(`http://localhost:8787/api/sleep_logs/${id}`, {
+    const response = await authFetch(`http://localhost:8787/api/sleep_logs/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -172,7 +179,7 @@ const handleDelete = async () => {
 
   try {
     const id = route.params.id
-    const response = await fetch(`http://localhost:8787/api/sleep_logs/${id}`, {
+    const response = await authFetch(`http://localhost:8787/api/sleep_logs/${id}`, {
       method: 'DELETE',
     })
 
@@ -224,6 +231,7 @@ onMounted(() => {
         </div>
 
         <form v-else @submit.prevent="submitForm" class="space-y-6">
+          <fieldset :disabled="isViewMode">
           <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
             <!-- Date -->
             <div class="space-y-2">
@@ -332,10 +340,11 @@ onMounted(() => {
               </div>
             </div>
           </div>
+          </fieldset>
 
           <div class="flex justify-between items-center pt-4">
             <div>
-              <AlertDialog>
+              <AlertDialog v-if="!isViewMode">
                 <AlertDialogTrigger as-child>
                   <Button type="button" variant="destructive" :disabled="loading"> 削除 </Button>
                 </AlertDialogTrigger>
@@ -358,10 +367,10 @@ onMounted(() => {
               </AlertDialog>
             </div>
             <div class="flex space-x-4">
-              <Button variant="outline" type="button" @click="router.push('/logs')">
-                キャンセル
+              <Button variant="outline" type="button" @click="router.push({ path: '/logs', query: route.query })">
+                {{ isViewMode ? '戻る' : 'キャンセル' }}
               </Button>
-              <Button type="submit" :disabled="loading">
+              <Button v-if="!isViewMode" type="submit" :disabled="loading">
                 {{ loading ? '更新中...' : '更新' }}
               </Button>
             </div>

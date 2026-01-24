@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
 import AppHeader from './components/layout/AppHeader.vue'
+import ViewModeBanner from '@/components/common/ViewModeBanner.vue'
 import { Toaster } from '@/components/ui/toast'
 import { Github } from 'lucide-vue-next'
 </script>
@@ -8,6 +9,7 @@ import { Github } from 'lucide-vue-next'
 <template>
   <div class="min-h-screen bg-background flex flex-col">
     <AppHeader />
+    <ViewModeBanner />
     <main class="flex-1">
       <RouterView />
     </main>

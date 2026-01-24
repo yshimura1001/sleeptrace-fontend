@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Download, Upload, AlertCircle, CheckCircle2, FileJson } from 'lucide-vue-next'
+import { authFetch } from '@/utils/api'
 import {
   Table,
   TableBody,
@@ -29,8 +30,23 @@ const fileInput = ref<HTMLInputElement | null>(null)
 const importStatus = ref<{ type: 'success' | 'error'; message: string; details?: string[] } | null>(null)
 const isImporting = ref(false)
 
-const handleExport = () => {
-  window.location.href = 'http://localhost:8787/api/csv/export'
+const handleExport = async () => {
+    try {
+        const res = await authFetch('http://localhost:8787/api/csv/export')
+        if (!res.ok) throw new Error('Export failed')
+        const blob = await res.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `sleep_logs_${new Date().toISOString().split('T')[0]}.csv`
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        window.URL.revokeObjectURL(url)
+    } catch (e) {
+        console.error('Export failed', e)
+        alert('エクスポートに失敗しました')
+    }
 }
 
 const triggerFileInput = () => {
@@ -49,7 +65,7 @@ const handleImport = async (event: Event) => {
   formData.append('file', file)
 
   try {
-    const res = await fetch('http://localhost:8787/api/csv/import', {
+    const res = await authFetch('http://localhost:8787/api/csv/import', {
       method: 'POST',
       body: formData,
     })

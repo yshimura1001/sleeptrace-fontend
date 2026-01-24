@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { authFetch } from '@/utils/api'
 
 const router = useRouter()
 const loading = ref(false)
@@ -82,7 +83,7 @@ const submitForm = async () => {
       rem_sleep_percentage: Number(formData.rem_sleep_percentage),
     }
 
-    const response = await fetch('http://localhost:8787/api/sleep_logs', {
+    const response = await authFetch('http://localhost:8787/api/sleep_logs', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -56,8 +56,8 @@ const chartData = computed<ChartData<'bar'>>(() => {
 
   const durationData = days.map((day) => {
     const data = props.weeklyData.find((d) => d.day_of_week === day.key)
-    // 分 -> 時間 (小数点第1位)
-    return data ? Math.round((data.avg_duration / 60) * 10) / 10 : 0
+    // 分 -> 時間 (小数点第2位まで保持して精度確保)
+    return data ? Math.round((data.avg_duration / 60) * 100) / 100 : 0
   })
 
   return {
@@ -81,14 +81,19 @@ const chartData = computed<ChartData<'bar'>>(() => {
         type: 'bar',
         label: '夜間の睡眠 (時間)',
         backgroundColor: '#4d93f6',
-        data: durationData, // 時間単位 (例: 6.4時間)
+        data: durationData, // 時間単位
         yAxisID: 'y',
         barPercentage: 0.6,
         datalabels: {
           anchor: 'end',
           align: 'end',
           color: textColor.value,
-          formatter: (value: number) => value.toFixed(1),
+          formatter: (value: number) => {
+             if (value === 0) return ''
+             const h = Math.floor(value)
+             const m = Math.round((value - h) * 60)
+             return `${h}:${m.toString().padStart(2, '0')}`
+          },
         },
       },
     ],

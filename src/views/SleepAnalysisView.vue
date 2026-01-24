@@ -16,6 +16,7 @@ import {
 import { Line } from 'vue-chartjs'
 import ChartDataLabels from 'chartjs-plugin-datalabels'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { authFetch } from '@/utils/api'
 
 ChartJS.register(
   CategoryScale,
@@ -42,6 +43,10 @@ interface SleepLog {
   rem_sleep_percentage: number
 }
 
+import { useRouter, useRoute } from 'vue-router'
+
+const route = useRoute()
+
 const sleepLogs = ref<SleepLog[]>([])
 const loading = ref(true)
 const error = ref('')
@@ -50,7 +55,11 @@ const fetchData = async () => {
   loading.value = true
   try {
     // 最新100件を取得
-    const res = await fetch('http://localhost:8787/api/sleep_logs?limit=100')
+    let url = 'http://localhost:8787/api/sleep_logs?limit=100'
+    if (route.query.viewUser) {
+        url += `&targetUserId=${route.query.viewUser}`
+    }
+    const res = await authFetch(url)
     if (!res.ok) throw new Error('Failed to fetch data')
     const json = await res.json()
     // 日付昇順に並び替え

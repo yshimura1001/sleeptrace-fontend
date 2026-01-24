@@ -12,6 +12,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { authFetch } from '@/utils/api'
 
 interface SleepLog {
   id: number
@@ -41,7 +42,11 @@ const fetchSleepLogs = async (month: string) => {
   loading.value = true
   error.value = ''
   try {
-    const response = await fetch(`http://localhost:8787/api/sleep_logs?month=${month}`)
+    let url = `http://localhost:8787/api/sleep_logs?month=${month}`
+    if (route.query.viewUser) {
+        url += `&targetUserId=${route.query.viewUser}`
+    }
+    const response = await authFetch(url)
     if (!response.ok) throw new Error('Failed to fetch data')
     const json = await response.json()
     sleepLogs.value = json.data
@@ -81,7 +86,7 @@ const handleMonthChange = (direction: 'prev' | 'next') => {
 }
 
 const goToDetail = (id: number) => {
-  router.push(`/logs/${id}`)
+  router.push({ path: `/logs/${id}`, query: route.query })
 }
 
 onMounted(() => {

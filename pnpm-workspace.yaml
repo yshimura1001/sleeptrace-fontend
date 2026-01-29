@@ -1,0 +1,5 @@
+ignoredBuiltDependencies:
+  - esbuild
+  - sharp
+  - vue-demi
+  - workerd

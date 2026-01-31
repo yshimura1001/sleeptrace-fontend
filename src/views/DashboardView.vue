@@ -65,9 +65,7 @@ onMounted(() => {
       <h1 class="text-2xl font-bold tracking-tight">ダッシュボード</h1>
       <p class="text-muted-foreground">睡眠ステータスの概要です。</p>
     </div>
-
-
-
+    
     <div v-if="loading" class="text-muted-foreground p-4">読み込み中...</div>
     <div v-else-if="error" class="text-destructive p-4">{{ error }}</div>
 

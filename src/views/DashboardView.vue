@@ -63,7 +63,7 @@ onMounted(() => {
   <div class="container mx-auto py-8">
     <div class="mb-6">
       <h1 class="text-2xl font-bold tracking-tight">ダッシュボード</h1>
-      <p class="text-muted-foreground">最近の睡眠ステータスの概要です。</p>
+      <p class="text-muted-foreground">睡眠ステータスの概要です。</p>
     </div>
 
 

@@ -57,7 +57,7 @@ const handleLogin = async () => {
         <CardTitle class="text-2xl">ログイン</CardTitle>
         <CardDescription>
           アカウント情報を入力してください。<br>
-          (初期ユーザー: yasuaki / l%6UmfL0&!)
+          ゲストユーザー: guest / Bc@r1#DMXn
         </CardDescription>
       </CardHeader>
       <CardContent class="grid gap-4">

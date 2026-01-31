@@ -55,7 +55,7 @@ const fetchData = async () => {
   loading.value = true
   try {
     // 最新100件を取得
-    let url = 'http://localhost:8787/api/sleep_logs?limit=100'
+    let url = '/api/sleep_logs?limit=100'
     if (route.query.viewUser) {
         url += `&targetUserId=${route.query.viewUser}`
     }

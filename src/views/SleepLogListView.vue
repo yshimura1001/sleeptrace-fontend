@@ -42,7 +42,7 @@ const fetchSleepLogs = async (month: string) => {
   loading.value = true
   error.value = ''
   try {
-    let url = `http://localhost:8787/api/sleep_logs?month=${month}`
+    let url = `/api/sleep_logs?month=${month}`
     if (route.query.viewUser) {
         url += `&targetUserId=${route.query.viewUser}`
     }

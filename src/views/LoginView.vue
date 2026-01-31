@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card'
+import { apiFetch } from '@/utils/api'
 
 const username = ref('')
 const password = ref('')
@@ -20,7 +21,7 @@ const handleLogin = async () => {
   loading.value = true
 
   try {
-    const res = await fetch('http://localhost:8787/api/auth/login', {
+    const res = await apiFetch('/api/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

@@ -15,7 +15,7 @@ const fetchTargetUser = async () => {
         return
     }
     try {
-        const res = await authFetch(`http://localhost:8787/api/users/${viewTargetId.value}`)
+        const res = await authFetch(`/api/users/${viewTargetId.value}`)
         if (res.ok) {
             const json = await res.json()
             viewTargetUser.value = json.data

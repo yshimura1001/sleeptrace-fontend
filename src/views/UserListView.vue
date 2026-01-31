@@ -31,7 +31,7 @@ const fetchUsers = async () => {
   loading.value = true
   error.value = ''
   try {
-    const res = await authFetch('http://localhost:8787/api/users')
+    const res = await authFetch('/api/users')
     if (!res.ok) throw new Error('Failed to fetch users')
     const json = await res.json()
     users.value = json.data
@@ -91,7 +91,7 @@ onMounted(() => {
                     v-if="user.is_public === 1 && user.id !== authStore.user?.id"
                     variant="secondary"
                     size="sm"
-                    @click="(e) => viewData(e, user.id)"
+                    @click="(e: Event) => viewData(e, user.id)"
                   >
                     データを見る
                   </Button>

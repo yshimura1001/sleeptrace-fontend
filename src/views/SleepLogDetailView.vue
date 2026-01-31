@@ -61,7 +61,7 @@ const fetchLog = async () => {
   loading.value = true
   try {
     const id = route.params.id
-    let url = `http://localhost:8787/api/sleep_logs/${id}`
+    let url = `/api/sleep_logs/${id}`
     if (isViewMode.value) {
         url += `?targetUserId=${route.query.viewUser}`
     }
@@ -134,7 +134,7 @@ const submitForm = async () => {
     }
 
     const id = route.params.id
-    const response = await authFetch(`http://localhost:8787/api/sleep_logs/${id}`, {
+    const response = await authFetch(`/api/sleep_logs/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -179,7 +179,7 @@ const handleDelete = async () => {
 
   try {
     const id = route.params.id
-    const response = await authFetch(`http://localhost:8787/api/sleep_logs/${id}`, {
+    const response = await authFetch(`/api/sleep_logs/${id}`, {
       method: 'DELETE',
     })
 

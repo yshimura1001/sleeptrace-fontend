@@ -83,7 +83,7 @@ const submitForm = async () => {
       rem_sleep_percentage: Number(formData.rem_sleep_percentage),
     }
 
-    const response = await authFetch('http://localhost:8787/api/sleep_logs', {
+    const response = await authFetch('/api/sleep_logs', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

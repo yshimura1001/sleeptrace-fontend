@@ -23,7 +23,7 @@ const fetchUser = async () => {
   error.value = ''
   try {
     const id = route.params.id
-    const res = await authFetch(`http://localhost:8787/api/users/${id}`)
+    const res = await authFetch(`/api/users/${id}`)
     if (!res.ok) throw new Error('Failed to fetch user')
     const json = await res.json()
     user.value = json.data

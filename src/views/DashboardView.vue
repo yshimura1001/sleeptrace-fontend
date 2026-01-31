@@ -27,8 +27,8 @@ const fetchData = async () => {
     }
 
     const [statsRes, weeklyRes] = await Promise.all([
-      authFetch(`http://localhost:8787/api/dashboard/statistics${query}`),
-      authFetch(`http://localhost:8787/api/dashboard/weekly${query}`),
+      authFetch(`/api/dashboard/statistics${query}`),
+      authFetch(`/api/dashboard/weekly${query}`),
     ])
 
     if (!statsRes.ok || !weeklyRes.ok) {

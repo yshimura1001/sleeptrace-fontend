@@ -32,7 +32,7 @@ const isImporting = ref(false)
 
 const handleExport = async () => {
     try {
-        const res = await authFetch('http://localhost:8787/api/csv/export')
+        const res = await authFetch('/api/csv/export')
         if (!res.ok) throw new Error('Export failed')
         const blob = await res.blob()
         const url = window.URL.createObjectURL(blob)
@@ -65,7 +65,7 @@ const handleImport = async (event: Event) => {
   formData.append('file', file)
 
   try {
-    const res = await authFetch('http://localhost:8787/api/csv/import', {
+    const res = await authFetch('/api/csv/import', {
       method: 'POST',
       body: formData,
     })

@@ -30,15 +30,15 @@ const mode = useColorMode({
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end">
-      <DropdownMenuItem @click="mode = 'light'">
+      <DropdownMenuItem v-if="mode !== 'light'" @click="mode = 'light'">
         <Sun class="mr-2 h-4 w-4" />
         <span>ライト</span>
       </DropdownMenuItem>
-      <DropdownMenuItem @click="mode = 'dark'">
+      <DropdownMenuItem v-if="mode !== 'dark'" @click="mode = 'dark'">
         <Moon class="mr-2 h-4 w-4" />
         <span>ダーク</span>
       </DropdownMenuItem>
-      <DropdownMenuItem @click="mode = 'auto'">
+      <DropdownMenuItem v-if="mode !== 'auto'" @click="mode = 'auto'">
         <Monitor class="mr-2 h-4 w-4" />
         <span>OS/ブラウザに連動</span>
       </DropdownMenuItem>

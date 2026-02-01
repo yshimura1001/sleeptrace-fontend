@@ -71,9 +71,18 @@ const submitForm = async () => {
       )
     }
 
+    // HH:MM:SS -> HH:MM 形式に変換（秒を除去）
+    const formatTime = (time: string) => {
+      if (!time) return time
+      const parts = time.split(':')
+      return parts.slice(0, 2).join(':')
+    }
+
     // 数値型への変換とnullチェック
     const payload = {
       ...formData,
+      bed_time: formatTime(formData.bed_time),
+      wakeup_time: formatTime(formData.wakeup_time),
       sleep_score: Number(formData.sleep_score),
       sleep_duration: Number(formData.sleep_duration),
       wakeup_count: Number(formData.wakeup_count),
@@ -93,7 +102,15 @@ const submitForm = async () => {
 
     if (!response.ok) {
       const errorData = await response.json()
-      throw new Error(errorData.error || 'Failed to submit data')
+      let errorMessage = 'Failed to submit data'
+      if (errorData.error) {
+        if (typeof errorData.error === 'string') {
+          errorMessage = errorData.error
+        } else if (typeof errorData.error === 'object') {
+          errorMessage = errorData.error.message || JSON.stringify(errorData.error)
+        }
+      }
+      throw new Error(errorMessage)
     }
 
     // Success: redirect to dashboard

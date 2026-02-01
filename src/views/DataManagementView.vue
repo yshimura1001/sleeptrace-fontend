@@ -72,7 +72,15 @@ const handleImport = async (event: Event) => {
 
     if (!res.ok) {
       const err = await res.json()
-      throw new Error(err.error || 'インポートに失敗しました')
+      let errorMessage = 'インポートに失敗しました'
+      if (err.error) {
+        if (typeof err.error === 'string') {
+          errorMessage = err.error
+        } else if (typeof err.error === 'object') {
+          errorMessage = err.error.message || JSON.stringify(err.error)
+        }
+      }
+      throw new Error(errorMessage)
     }
 
     const result = await res.json()

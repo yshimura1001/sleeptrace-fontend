@@ -185,7 +185,15 @@ const handleDelete = async () => {
 
     if (!response.ok) {
       const errorData = await response.json()
-      throw new Error(errorData.error || 'Failed to delete data')
+      let errorMessage = 'Failed to delete data'
+      if (errorData.error) {
+        if (typeof errorData.error === 'string') {
+          errorMessage = errorData.error
+        } else if (typeof errorData.error === 'object') {
+          errorMessage = errorData.error.message || JSON.stringify(errorData.error)
+        }
+      }
+      throw new Error(errorMessage)
     }
 
     toast({

@@ -150,7 +150,7 @@ const getDurationCellStyle = (row: any) => {
           }"
         >
           <TableCell class="font-bold">{{ row.label }}</TableCell>
-          <TableCell :class="getCellStyle(row, 'score', 80, 100)">{{ row.score }}</TableCell>
+          <TableCell>{{ row.score }}</TableCell>
           <TableCell>{{ row.bedTime }}</TableCell>
           <TableCell>{{ row.wakeTime }}</TableCell>
           <TableCell :class="getCellStyle(row, 'awakeCount', 0, 1)">{{ row.awakeCount }}</TableCell>

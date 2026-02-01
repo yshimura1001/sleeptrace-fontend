@@ -138,9 +138,6 @@ const getStyle = (val: number, min: number, max: number) => {
 
 const getColorClass = (columnName: string, value: number) => {
   switch (columnName) {
-    case 'sleep_score':
-      return getStyle(value, 80, 100)
-
     case 'wakeup_count':
       return getStyle(value, 0, 1)
 
@@ -212,9 +209,7 @@ const getColorClass = (columnName: string, value: number) => {
                 class="cursor-pointer hover:bg-muted/50 transition-colors"
               >
                 <TableCell class="font-medium">{{ formatDateWithDay(log.sleep_date) }}</TableCell>
-                <TableCell :class="getColorClass('sleep_score', log.sleep_score)">
-                  {{ log.sleep_score }}
-                </TableCell>
+                <TableCell>{{ log.sleep_score }}</TableCell>
                 <TableCell>{{ log.bed_time }}</TableCell>
                 <TableCell>{{ log.wakeup_time }}</TableCell>
                 <TableCell :class="getColorClass('sleep_duration', log.sleep_duration)"

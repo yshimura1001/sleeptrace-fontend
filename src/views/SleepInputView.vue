@@ -162,13 +162,13 @@ const submitForm = async () => {
             <!-- Bed Time -->
             <div class="space-y-2">
               <Label for="bed_time">就寝時間</Label>
-              <Input type="time" id="bed_time" v-model="formData.bed_time" required />
+              <Input type="time" id="bed_time" v-model="formData.bed_time" step="60" required />
             </div>
 
             <!-- Wakeup Time -->
             <div class="space-y-2">
               <Label for="wakeup_time">起床時間</Label>
-              <Input type="time" id="wakeup_time" v-model="formData.wakeup_time" required />
+              <Input type="time" id="wakeup_time" v-model="formData.wakeup_time" step="60" required />
             </div>
 
             <!-- Sleep Duration -->
@@ -178,6 +178,7 @@ const submitForm = async () => {
                 type="time"
                 id="duration_time"
                 v-model="durationTime"
+                step="60"
                 required
               />
             </div>

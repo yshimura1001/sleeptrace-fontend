@@ -46,7 +46,10 @@ const handleLogout = () => {
   <header :class="headerClass">
     <div class="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
       <div class="flex items-center gap-8">
-        <h1 class="text-xl font-bold" :class="isViewMode ? 'text-background' : 'text-foreground'">SleepTrace</h1>
+        <RouterLink to="/" class="flex items-center gap-2">
+          <img src="/favicon.svg" alt="SleepTrace" class="h-8 w-8" />
+          <span class="text-xl font-bold" :class="isViewMode ? 'text-background' : 'text-foreground'">SleepTrace</span>
+        </RouterLink>
         <nav class="hidden md:flex gap-6">
           <RouterLink
             :to="{ path: '/', query: route.query }"

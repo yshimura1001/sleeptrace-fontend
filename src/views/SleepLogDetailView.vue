@@ -54,8 +54,29 @@ const formData = reactive<SleepLogForm>({
   rem_sleep_percentage: null,
 })
 
-// 睡眠時間の時間 (HH:MM)
-const durationTime = ref<string>('')
+// 時間入力用のref
+const bedTimeHour = ref<number>(0)
+const bedTimeMinute = ref<number>(0)
+const wakeupTimeHour = ref<number>(0)
+const wakeupTimeMinute = ref<number>(0)
+const durationHour = ref<number>(0)
+const durationMinute = ref<number>(0)
+
+// 時間と分を結合してHH:MM形式に変換
+const formatTimeFromParts = (hour: number, minute: number): string => {
+  return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
+}
+
+// HH:MM形式を時間と分に分解
+const parseTime = (time: string): { hour: number; minute: number } => {
+  if (!time) return { hour: 0, minute: 0 }
+  const parts = time.split(':').map(Number)
+  return { hour: parts[0] || 0, minute: parts[1] || 0 }
+}
+
+// 時間選択肢の生成
+const hourOptions = Array.from({ length: 25 }, (_, i) => i)
+const minuteOptions = Array.from({ length: 60 }, (_, i) => i)
 
 const fetchLog = async () => {
   loading.value = true
@@ -76,11 +97,19 @@ const fetchLog = async () => {
     formData.wakeup_time = data.wakeup_time
     formData.sleep_duration = data.sleep_duration
 
-    // 時間・分の初期値を設定 (分 -> HH:MM)
+    // 時間の初期値を設定
+    const bedTimeParsed = parseTime(data.bed_time)
+    bedTimeHour.value = bedTimeParsed.hour
+    bedTimeMinute.value = bedTimeParsed.minute
+
+    const wakeupTimeParsed = parseTime(data.wakeup_time)
+    wakeupTimeHour.value = wakeupTimeParsed.hour
+    wakeupTimeMinute.value = wakeupTimeParsed.minute
+
+    // 睡眠時間の初期値を設定 (分 -> 時間と分)
     if (data.sleep_duration) {
-      const h = Math.floor(data.sleep_duration / 60)
-      const m = data.sleep_duration % 60
-      durationTime.value = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+      durationHour.value = Math.floor(data.sleep_duration / 60)
+      durationMinute.value = data.sleep_duration % 60
     }
 
     formData.wakeup_count = data.wakeup_count
@@ -100,14 +129,8 @@ const submitForm = async () => {
   error.value = ''
 
   try {
-    // 睡眠時間の計算 (HH:MM -> 分)
-    let totalMinutes = 0
-    if (durationTime.value) {
-      const parts = durationTime.value.split(':').map(Number)
-      if (parts.length === 2 && parts[0] !== undefined && parts[1] !== undefined) {
-        totalMinutes = parts[0] * 60 + parts[1]
-      }
-    }
+    // 睡眠時間の計算 (時間と分から分に変換)
+    const totalMinutes = durationHour.value * 60 + durationMinute.value
     formData.sleep_duration = totalMinutes > 0 ? totalMinutes : null
 
     const deep = Number(formData.deep_sleep_percentage || 0)
@@ -123,8 +146,8 @@ const submitForm = async () => {
     const payload = {
       ...formData,
       sleep_score: Number(formData.sleep_score),
-      bed_time: formData.bed_time ? formData.bed_time.slice(0, 5) : '',
-      wakeup_time: formData.wakeup_time ? formData.wakeup_time.slice(0, 5) : '',
+      bed_time: formatTimeFromParts(bedTimeHour.value, bedTimeMinute.value),
+      wakeup_time: formatTimeFromParts(wakeupTimeHour.value, wakeupTimeMinute.value),
       sleep_duration: Number(formData.sleep_duration),
       wakeup_count: Number(formData.wakeup_count),
       deep_sleep_continuity: Number(formData.deep_sleep_continuity),
@@ -262,26 +285,62 @@ onMounted(() => {
 
             <!-- Bed Time -->
             <div class="space-y-2">
-              <Label for="bed_time">就寝時間</Label>
-              <Input type="time" id="bed_time" v-model="formData.bed_time" step="60" required />
+              <Label>就寝時間</Label>
+              <div class="flex items-center gap-2">
+                <select
+                  v-model="bedTimeHour"
+                  class="flex h-9 w-20 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option v-for="h in hourOptions" :key="h" :value="h">{{ String(h).padStart(2, '0') }}</option>
+                </select>
+                <span class="text-muted-foreground">:</span>
+                <select
+                  v-model="bedTimeMinute"
+                  class="flex h-9 w-20 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option v-for="m in minuteOptions" :key="m" :value="m">{{ String(m).padStart(2, '0') }}</option>
+                </select>
+              </div>
             </div>
 
             <!-- Wakeup Time -->
             <div class="space-y-2">
-              <Label for="wakeup_time">起床時間</Label>
-              <Input type="time" id="wakeup_time" v-model="formData.wakeup_time" step="60" required />
+              <Label>起床時間</Label>
+              <div class="flex items-center gap-2">
+                <select
+                  v-model="wakeupTimeHour"
+                  class="flex h-9 w-20 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option v-for="h in hourOptions" :key="h" :value="h">{{ String(h).padStart(2, '0') }}</option>
+                </select>
+                <span class="text-muted-foreground">:</span>
+                <select
+                  v-model="wakeupTimeMinute"
+                  class="flex h-9 w-20 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option v-for="m in minuteOptions" :key="m" :value="m">{{ String(m).padStart(2, '0') }}</option>
+                </select>
+              </div>
             </div>
 
             <!-- Sleep Duration -->
             <div class="space-y-2">
-              <Label for="duration_time">睡眠時間</Label>
-              <Input
-                type="time"
-                id="duration_time"
-                v-model="durationTime"
-                step="60"
-                required
-              />
+              <Label>睡眠時間</Label>
+              <div class="flex items-center gap-2">
+                <select
+                  v-model="durationHour"
+                  class="flex h-9 w-20 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option v-for="h in hourOptions" :key="h" :value="h">{{ String(h).padStart(2, '0') }}</option>
+                </select>
+                <span class="text-muted-foreground">:</span>
+                <select
+                  v-model="durationMinute"
+                  class="flex h-9 w-20 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option v-for="m in minuteOptions" :key="m" :value="m">{{ String(m).padStart(2, '0') }}</option>
+                </select>
+              </div>
             </div>
 
             <!-- Wakeup Count -->

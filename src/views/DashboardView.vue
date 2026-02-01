@@ -84,7 +84,7 @@ onMounted(() => {
 
       <!-- 2. 週間データ表 -->
       <section>
-        <h2 class="text-xl font-semibold mb-3">週間データ</h2>
+        <h2 class="text-xl font-semibold mb-3">曜日別の統計</h2>
         <WeeklySleepTable
           :weekly-data="weeklyData"
           :total-count="weeklyData.reduce((acc, curr) => acc + (curr.count || 0), 0)"

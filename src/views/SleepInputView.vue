@@ -5,8 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { useToast } from '@/components/ui/toast/use-toast'
 import { authFetch } from '@/utils/api'
 
+const { toast } = useToast()
 const router = useRouter()
 const loading = ref(false)
 const error = ref('')
@@ -39,11 +41,11 @@ const formData = reactive<SleepLogForm>({
 })
 
 // 時間入力用のref
-const bedTimeHour = ref<number>(23)
+const bedTimeHour = ref<number>(0)
 const bedTimeMinute = ref<number>(0)
-const wakeupTimeHour = ref<number>(7)
+const wakeupTimeHour = ref<number>(0)
 const wakeupTimeMinute = ref<number>(0)
-const durationHour = ref<number>(7)
+const durationHour = ref<number>(0)
 const durationMinute = ref<number>(0)
 
 // 時間と分を結合してHH:MM形式に変換
@@ -114,8 +116,31 @@ const submitForm = async () => {
       throw new Error(errorMessage)
     }
 
-    // Success: redirect to dashboard
-    await router.push('/')
+    // Success: show toast and clear form
+    toast({
+      title: '登録しました',
+      description: '睡眠ログが正常に登録されました。',
+    })
+
+    // フォームをクリア
+    formData.sleep_date = ''
+    formData.sleep_score = null
+    formData.bed_time = ''
+    formData.wakeup_time = ''
+    formData.sleep_duration = null
+    formData.wakeup_count = null
+    formData.deep_sleep_continuity = null
+    formData.deep_sleep_percentage = null
+    formData.light_sleep_percentage = null
+    formData.rem_sleep_percentage = null
+
+    // 時間をデフォルト値にリセット
+    bedTimeHour.value = 0
+    bedTimeMinute.value = 0
+    wakeupTimeHour.value = 0
+    wakeupTimeMinute.value = 0
+    durationHour.value = 0
+    durationMinute.value = 0
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Unknown error'
   } finally {

@@ -7,9 +7,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card'
 import { apiFetch } from '@/utils/api'
+import { Eye, EyeOff } from 'lucide-vue-next'
 
 const username = ref('')
 const password = ref('')
+const showPassword = ref(false)
 const error = ref('')
 const loading = ref(false)
 
@@ -68,7 +70,13 @@ const handleLogin = async () => {
         </div>
         <div class="grid gap-2">
           <Label for="password">パスワード</Label>
-          <Input id="password" type="password" v-model="password" required />
+          <div class="relative">
+            <Input id="password" :type="showPassword ? 'text' : 'password'" v-model="password" required class="pr-10" />
+            <Button type="button" variant="ghost" size="icon" class="absolute right-0 top-0 h-full px-3 hover:bg-transparent" @click="showPassword = !showPassword">
+              <EyeOff v-if="showPassword" class="h-4 w-4 text-muted-foreground" />
+              <Eye v-else class="h-4 w-4 text-muted-foreground" />
+            </Button>
+          </div>
         </div>
         <div v-if="error" class="text-destructive text-sm">{{ error }}</div>
       </CardContent>

@@ -87,8 +87,8 @@ const computedSummaryData = computed(() => {
 // 値が基準より小さい場合は青背景・白文字、大きい場合は赤背景・白文字
 const getStyle = (val: number | string, min: number, max: number) => {
   if (typeof val !== 'number') return ''
-  if (val < min) return 'bg-blue-400 text-white'
-  if (val > max) return 'bg-red-400 text-white'
+  if (val < min) return 'bg-blue-400 text-white dark:bg-blue-400 dark:text-gray-100'
+  if (val > max) return 'bg-red-400 text-white dark:bg-red-400 dark:text-gray-100'
   return ''
 }
 
@@ -117,7 +117,7 @@ const getDurationCellStyle = (row: any) => {
   // 10時間 (600分) より長い場合は赤色
   const totalMinutes = h * 60 + m
   if (totalMinutes > 600) {
-    return 'bg-red-400 text-white dark:bg-red-600 dark:text-gray-100'
+    return 'bg-red-400 text-white dark:bg-red-400 dark:text-gray-100'
   }
   return ''
 }

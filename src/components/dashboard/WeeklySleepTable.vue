@@ -73,14 +73,14 @@ const computedWeeklyData = computed(() => {
 // 値が基準より小さいと「悪い」場合 (点数など) -> 赤
 const getLowIsBadStyle = (val: number | string, min: number) => {
   if (typeof val !== 'number') return ''
-  if (val < min) return 'bg-red-400 text-white dark:bg-red-600 dark:text-gray-100'
+  if (val < min) return 'bg-red-400 text-white dark:bg-red-400 dark:text-gray-100'
   return ''
 }
 
 // 値が基準より大きいと「悪い」場合 (回数など) -> 赤
 const getHighIsBadStyle = (val: number | string, max: number) => {
   if (typeof val !== 'number') return ''
-  if (val > max) return 'bg-red-400 text-white dark:bg-red-600 dark:text-gray-100'
+  if (val > max) return 'bg-red-400 text-white dark:bg-red-400 dark:text-gray-100'
   return ''
 }
 
@@ -94,7 +94,7 @@ const getRangeOutStyle = (val: number | string, min: number, max: number) => {
         return ''
      }
   }
-  if (val < min || val > max) return 'bg-red-400 text-white dark:bg-red-600 dark:text-gray-100'
+  if (val < min || val > max) return 'bg-red-400 text-white dark:bg-red-400 dark:text-gray-100'
   return ''
 }
 
@@ -112,7 +112,7 @@ const getDurationStyle = (durationStr: string) => {
 
   const totalMin = h * 60 + m
   if (totalMin < 360 || totalMin > 600) {
-     return 'bg-red-400 text-white dark:bg-red-600 dark:text-gray-100'
+     return 'bg-red-400 text-white dark:bg-red-400 dark:text-gray-100'
   }
   return ''
 }

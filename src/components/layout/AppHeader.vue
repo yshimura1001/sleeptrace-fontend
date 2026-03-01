@@ -128,6 +128,11 @@ const handleLogout = () => {
                         </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
+                    <DropdownMenuItem @click="router.push(`/users/${authStore.user?.id}`)">
+                        <User class="mr-2 h-4 w-4" />
+                        <span>プロフィール設定</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem @click="handleLogout" class="text-destructive focus:text-destructive">
                         <LogOut class="mr-2 h-4 w-4" />
                         <span>ログアウト</span>

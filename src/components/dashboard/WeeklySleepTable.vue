@@ -153,7 +153,7 @@ const getDurationStyle = (durationStr: string) => {
       </TableBody>
     </Table>
     <div class="bg-muted/50 p-2 text-right text-xs text-muted-foreground border-t">
-      集計データ数: {{ props.totalCount ?? '-' }}件
+      集計データ数: 最新{{ props.totalCount ?? '-' }}件
     </div>
   </div>
 </template>

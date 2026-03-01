@@ -225,8 +225,8 @@ onMounted(() => {
               </p>
             </div>
             <Switch
-              :checked="formData.is_public === 1"
-              @update:checked="(val: boolean) => formData.is_public = val ? 1 : 0"
+              :modelValue="formData.is_public === 1"
+              @update:modelValue="(val: boolean) => formData.is_public = val ? 1 : 0"
             />
           </div>
 

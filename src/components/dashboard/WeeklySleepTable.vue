@@ -8,20 +8,12 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { computed } from 'vue'
+import { minutesToTime } from '@/utils/time'
 
 const props = defineProps<{
   weeklyData: any[]
   totalCount?: number
 }>()
-
-const minutesToTime = (totalMin: number, wrap24 = false) => {
-  let h = Math.floor(totalMin / 60)
-  const m = Math.floor(totalMin % 60)
-  if (wrap24) {
-    h = h % 24
-  }
-  return `${h}:${m.toString().padStart(2, '0')}`
-}
 
 const computedWeeklyData = computed(() => {
   const days = [

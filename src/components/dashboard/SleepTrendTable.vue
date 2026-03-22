@@ -37,14 +37,11 @@ const getTrendInfo = (key: string, slope: number) => {
 
   if (!isUp && !isDown) return { text: '-', color: 'text-muted-foreground', icon: Minus }
 
-  // 改善 (Good) or 悪化 (Bad) determination
+  // 改善 (Good) or 悪化 (Bad) 
   let isImprovement = false
 
   switch (key) {
     case 'wakeup_count':
-      // 下降が改善
-      isImprovement = isDown
-      break
     case 'light_sleep_percentage':
       // 下降が改善
       isImprovement = isDown
@@ -57,7 +54,7 @@ const getTrendInfo = (key: string, slope: number) => {
   }
 
   const text = isImprovement ? '改善' : '悪化'
-  // 改善=Green, 悪化=Red
+  // 改善=緑, 悪化=赤
   const color = isImprovement ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
   const icon = isUp ? ArrowUp : ArrowDown
 

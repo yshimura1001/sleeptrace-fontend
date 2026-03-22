@@ -51,12 +51,13 @@ const chartData = computed<ChartData<'bar'>>(() => {
 
   const deepSleepData = days.map((day) => {
     const data = props.weeklyData.find((d) => d.day_of_week === day.key)
+    // dataがundefindの場合に備えて三項演算子でガードする
     return data ? Math.round(data.avg_deep_sleep_percentage) : 0
   })
 
   const durationData = days.map((day) => {
     const data = props.weeklyData.find((d) => d.day_of_week === day.key)
-    // 分 -> 時間 (小数点第2位まで保持して精度確保)
+    // 分から時間に変換 (小数点第2位まで。)
     return data ? Math.round((data.avg_duration / 60) * 100) / 100 : 0
   })
 
@@ -76,6 +77,7 @@ const chartData = computed<ChartData<'bar'>>(() => {
           color: textColor.value,
           formatter: (value: number) => value + '%',
         },
+      // Chart.jsの型定義が厳密すぎて、lineとbarを同じ配列に入れるとエラーになるため、やむを得ずanyでキャスト
       } as any, // eslint-disable-line @typescript-eslint/no-explicit-any
       {
         type: 'bar',
@@ -124,7 +126,8 @@ const chartOptions = computed<ChartOptions<'bar'>>(() => ({
       font: {
         weight: 'bold',
       },
-    } as any, // Plugin specific types might be tricky, casting to any for plugins config
+    // Chart.jsの型定義が厳密すぎて、lineとbarを同じ配列に入れるとエラーになるため、やむを得ずanyでキャスト
+    } as any, // eslint-disable-line @typescript-eslint/no-explicit-any
   },
   scales: {
     x: {

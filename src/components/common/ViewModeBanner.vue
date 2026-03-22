@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Eye } from 'lucide-vue-next'
@@ -31,7 +31,7 @@ watch(viewTargetId, async (newVal) => {
     } else {
         viewTargetUser.value = null
     }
-}, { immediate: true })
+}, { immediate: true }) // コンポーネントのマウント時にも即座に1度実行する
 </script>
 
 <template>

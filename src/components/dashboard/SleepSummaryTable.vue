@@ -9,8 +9,6 @@ import {
 } from '@/components/ui/table'
 import { computed } from 'vue'
 
-// ダミーデータまたはプロップスとして受け取る想定
-// 今回はサンプルに合わせて一旦内部で定義、後でProps化を検討
 const props = defineProps<{
   statsData: any
   totalCount?: number

@@ -47,36 +47,36 @@ const fetchSleepLogs = async (month: string) => {
         url += `&targetUserId=${route.query.viewUser}`
     }
     const response = await authFetch(url)
-    if (!response.ok) throw new Error('Failed to fetch data')
+    if (!response.ok) throw new Error('データの取得(フェッチ)に失敗しました。')
     const json = await response.json()
     sleepLogs.value = json.data
   } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Unknown error'
+    error.value = e instanceof Error ? e.message : '不明なエラーです。'
   } finally {
     loading.value = false
   }
 }
 
-const getPreviousMonth = (month: string) => {
-  const parts = month.split('-')
-  if (parts.length < 2) return month
+const getPreviousMonth = (monthStr: string) => {
+  const parts = monthStr.split('-')
+  if (parts.length < 2) return monthStr
   const y = Number(parts[0])
   const m = Number(parts[1])
-  const date = new Date(y, m - 1 - 1, 1) // month is 0-indexed in Date
+  const date = new Date(y, m - 1 - 1, 1) // 1月=0かつ、前の月にするために、-1を2回している。
   const year = date.getFullYear()
-  const mo = (date.getMonth() + 1).toString().padStart(2, '0')
-  return `${year}-${mo}`
+  const month = (date.getMonth() + 1).toString().padStart(2, '0')
+  return `${year}-${month}`
 }
 
-const getNextMonth = (month: string) => {
-  const parts = month.split('-')
-  if (parts.length < 2) return month
+const getNextMonth = (monthStr: string) => {
+  const parts = monthStr.split('-')
+  if (parts.length < 2) return monthStr
   const y = Number(parts[0])
   const m = Number(parts[1])
   const date = new Date(y, m - 1 + 1, 1)
   const year = date.getFullYear()
-  const mo = (date.getMonth() + 1).toString().padStart(2, '0')
-  return `${year}-${mo}`
+  const month = (date.getMonth() + 1).toString().padStart(2, '0')
+  return `${year}-${month}`
 }
 
 const handleMonthChange = (direction: 'prev' | 'next') => {
@@ -95,7 +95,7 @@ onMounted(() => {
   if (queryMonth && /^\d{4}-\d{2}$/.test(queryMonth)) {
     currentMonth.value = queryMonth
   } else {
-    // Current month defaults
+    // 今月をデフォルト表示
     const now = new Date()
     const y = now.getFullYear()
     const m = (now.getMonth() + 1).toString().padStart(2, '0')

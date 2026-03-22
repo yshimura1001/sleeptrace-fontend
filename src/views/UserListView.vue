@@ -32,11 +32,11 @@ const fetchUsers = async () => {
   error.value = ''
   try {
     const res = await authFetch('/api/users')
-    if (!res.ok) throw new Error('Failed to fetch users')
+    if (!res.ok) throw new Error('ユーザーデータを取得(フェッチ)できませんでした。')
     const json = await res.json()
     users.value = json.data
   } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Unknown error'
+    error.value = e instanceof Error ? e.message : '不明なエラーです。'
   } finally {
     loading.value = false
   }

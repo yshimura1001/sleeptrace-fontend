@@ -129,7 +129,7 @@ const submitForm = async () => {
   error.value = ''
 
   try {
-    // 睡眠時間の計算 (時間と分から分に変換)
+    // 睡眠時間の計算 (時間と分を分だけに変換)
     const totalMinutes = durationHour.value * 60 + durationMinute.value
     formData.sleep_duration = totalMinutes > 0 ? totalMinutes : null
 
@@ -172,25 +172,25 @@ const submitForm = async () => {
         if (typeof errorData.error === 'string') {
           errorMessage = errorData.error
         } else if (typeof errorData.error === 'object') {
-          // Handle Zod error formatting if possible, or just stringify
-          // Hono zValidator typically returns { success: false, error: { issues: [...] } } in some configs,
-          // or straightforward error structure.
-          // If the backend returns { error: ZodError }, handle it.
+          // 可能であればZodエラーをフォーマット、そうでなければ文字列化する
+          // Hono zValidatorは設定によって { success: false, error: { issues: [...] } } を返す場合と、
+          // シンプルなエラー構造を返す場合がある。
+          // バックエンドが { error: ZodError } を返す場合はそれを処理する。
           errorMessage = JSON.stringify(errorData.error, null, 2)
         }
       }
       throw new Error(errorMessage)
     }
 
-    // Success
+    // 成功した場合
     toast({
       title: '更新しました',
       description: '睡眠ログが正常に更新されました。',
     })
-    // Optionally redirect or stay
+    // オプション：リダイレクトするかそのままか
     // router.push('/logs')
   } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Unknown error'
+    error.value = e instanceof Error ? e.message : '不明なエラーです。'
   } finally {
     loading.value = false
   }
@@ -226,7 +226,7 @@ const handleDelete = async () => {
 
     router.push('/logs')
   } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Unknown error'
+    error.value = e instanceof Error ? e.message : '不明なエラーです。'
   } finally {
     loading.value = false
   }
@@ -264,13 +264,11 @@ onMounted(() => {
         <form v-else @submit.prevent="submitForm" class="space-y-6">
           <fieldset :disabled="isViewMode">
           <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
-            <!-- Date -->
             <div class="space-y-2">
               <Label for="sleep_date">日付</Label>
               <Input type="date" id="sleep_date" v-model="formData.sleep_date" required />
             </div>
 
-            <!-- Score -->
             <div class="space-y-2">
               <Label for="sleep_score">睡眠スコア (0-100)</Label>
               <Input
@@ -283,7 +281,6 @@ onMounted(() => {
               />
             </div>
 
-            <!-- Bed Time -->
             <div class="space-y-2">
               <Label>就寝時間</Label>
               <div class="flex items-center gap-2">
@@ -303,7 +300,6 @@ onMounted(() => {
               </div>
             </div>
 
-            <!-- Wakeup Time -->
             <div class="space-y-2">
               <Label>起床時間</Label>
               <div class="flex items-center gap-2">
@@ -323,7 +319,6 @@ onMounted(() => {
               </div>
             </div>
 
-            <!-- Sleep Duration -->
             <div class="space-y-2">
               <Label>睡眠時間</Label>
               <div class="flex items-center gap-2">
@@ -343,7 +338,6 @@ onMounted(() => {
               </div>
             </div>
 
-            <!-- Wakeup Count -->
             <div class="space-y-2">
               <Label for="wakeup_count">目が覚めた回数</Label>
               <Input

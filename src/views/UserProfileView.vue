@@ -58,7 +58,7 @@ const fetchUser = async () => {
   try {
     const id = route.params.id
     const res = await authFetch(`/api/users/${id}`)
-    if (!res.ok) throw new Error('Failed to fetch user')
+    if (!res.ok) throw new Error('ユーザーデータを取得(フェッチ)できませんでした。')
     const json = await res.json()
     user.value = json.data
 
@@ -67,7 +67,7 @@ const fetchUser = async () => {
       formData.is_public = json.data.is_public
     }
   } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Unknown error'
+    error.value = e instanceof Error ? e.message : '不明なエラーです。'
   } finally {
     loading.value = false
   }
@@ -111,7 +111,7 @@ const submitForm = async () => {
 
     if (!res.ok) {
       const data = await res.json()
-      throw new Error(data.error || 'Update failed')
+      throw new Error(data.error || '更新に失敗しました。')
     }
 
     if (payload.username && authStore.user) {
@@ -128,7 +128,7 @@ const submitForm = async () => {
 
     await fetchUser()
   } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Unknown error'
+    error.value = e instanceof Error ? e.message : '不明なエラーです。'
   } finally {
     loading.value = false
   }
@@ -146,7 +146,7 @@ const handleDelete = async () => {
 
     if (!res.ok) {
       const data = await res.json()
-      throw new Error(data.error || 'Delete failed')
+      throw new Error(data.error || 'アカウントの削除に失敗しました。')
     }
 
     toast({ title: 'アカウントを削除しました。' })
@@ -154,7 +154,7 @@ const handleDelete = async () => {
     authStore.logout()
     router.push('/login')
   } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Unknown error'
+    error.value = e instanceof Error ? e.message : '不明なエラーです。'
   } finally {
     loading.value = false
   }

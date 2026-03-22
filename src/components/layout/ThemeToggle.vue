@@ -13,7 +13,7 @@ const mode = useColorMode({
   selector: 'body',
   attribute: 'class',
   modes: {
-    light: '', // light mode has no class
+    light: '', // ライトモードはクラスなし。
     dark: 'dark',
   },
 })

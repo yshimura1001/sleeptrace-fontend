@@ -14,18 +14,15 @@ export async function authFetch(url: string, options: RequestInit = {}) {
   if (authStore.token) {
     headers.set('Authorization', `Bearer ${authStore.token}`)
   }
-
   const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`
   const res = await fetch(fullUrl, {
     ...options,
     headers
   })
-
-  // Token expired check
+  // トークンの有効期間切れチェック
   if (res.status === 401) {
     authStore.logout()
     window.location.href = '/login'
   }
-
   return res
 }

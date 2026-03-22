@@ -8,7 +8,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { computed } from 'vue'
-import { minutesToTime } from '@/utils/time'
+import { minutesToTime } from '@/lib/utils'
 
 const props = defineProps<{
   statsData: any

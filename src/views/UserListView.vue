@@ -95,6 +95,12 @@ onMounted(() => {
                   >
                     データを見る
                   </Button>
+                  <span
+                    v-else-if="user.is_public === 1 && user.id === authStore.user?.id"
+                    class="text-xs text-muted-foreground"
+                  >
+                    ※ログインしているユーザーです。
+                  </span>
                 </TableCell>
               </TableRow>
             </TableBody>

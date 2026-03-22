@@ -40,13 +40,13 @@ const handleLogin = async () => {
       throw new Error(data.error || 'Login failed')
     }
 
-    // Store token
+    // ストアのトークンセット
     authStore.setAuth(data.token, data.user)
 
-    // Redirect
+    // リダイレクト
     router.push('/')
   } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Login failed'
+    error.value = e instanceof Error ? e.message : 'ログインに失敗しました。'
   } finally {
     loading.value = false
   }

@@ -43,7 +43,7 @@ interface SleepLog {
   rem_sleep_percentage: number
 }
 
-import { useRouter, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
 
 const route = useRoute()
 
@@ -60,12 +60,12 @@ const fetchData = async () => {
         url += `&targetUserId=${route.query.viewUser}`
     }
     const res = await authFetch(url)
-    if (!res.ok) throw new Error('Failed to fetch data')
+    if (!res.ok) throw new Error('データの取得(フェッチ)に失敗しました。')
     const json = await res.json()
     // 日付昇順に並び替え
     sleepLogs.value = (json.data as SleepLog[]).reverse()
   } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Unknown error'
+    error.value = e instanceof Error ? e.message : '不明なエラーです。'
   } finally {
     loading.value = false
   }
@@ -75,7 +75,7 @@ onMounted(() => {
   fetchData()
 })
 
-// --- Helper: Simple Linear Regression for Trend Line ---
+// 線形回帰でトレンドラインを算出するヘルパー関数
 const calculateTrendLine = (data: number[]) => {
   const n = data.length
   if (n === 0) return []
@@ -94,12 +94,12 @@ const calculateTrendLine = (data: number[]) => {
   return x.map(xi => slope * xi + intercept)
 }
 
-// --- Color Logic for Charts ---
+// グラフの色の判定ロジック
 const isDark = useDark()
-const textColor = computed(() => isDark.value ? '#e5e7eb' : '#666') // gray-200 vs gray-500
-const gridColor = computed(() => isDark.value ? '#374151' : '#e5e7eb') // gray-700 vs gray-200
+const textColor = computed(() => isDark.value ? '#e5e7eb' : '#666') // gray-200 対 gray-500
+const gridColor = computed(() => isDark.value ? '#374151' : '#e5e7eb') // gray-700 対 gray-200
 
-// --- Common Chart Options ---
+// グラフの共通オプション設定
 const commonOptions = computed<ChartOptions<'line'>>(() => ({
   responsive: true,
   maintainAspectRatio: false,
@@ -141,7 +141,7 @@ const commonOptions = computed<ChartOptions<'line'>>(() => ({
   }
 }))
 
-// Specific options for charts with custom scales
+// 起床時間のカスタムスケールの設定
 const wakeupOptions = computed<ChartOptions<'line'>>(() => ({
   ...commonOptions.value,
   scales: {
@@ -152,11 +152,12 @@ const wakeupOptions = computed<ChartOptions<'line'>>(() => ({
         ...commonOptions.value.scales?.y?.ticks,
         stepSize: 1
       }
+    // 型エラー除け
     } as any // eslint-disable-line @typescript-eslint/no-explicit-any
   }
 }))
 
-// Specific options for charts with custom scales
+// 深い睡眠の持続性のカスタムスケールの設定
 const deepContinuityOptions = computed<ChartOptions<'line'>>(() => ({
   ...commonOptions.value,
   scales: {
@@ -168,6 +169,7 @@ const deepContinuityOptions = computed<ChartOptions<'line'>>(() => ({
   }
 }))
 
+// 深い睡眠の割合のカスタムスケールの設定
 const deepPercentageOptions = computed<ChartOptions<'line'>>(() => ({
   ...commonOptions.value,
   scales: {
@@ -179,6 +181,7 @@ const deepPercentageOptions = computed<ChartOptions<'line'>>(() => ({
   }
 }))
 
+// 浅い睡眠の割合のカスタムスケールの設定
 const lightPercentageOptions = computed<ChartOptions<'line'>>(() => ({
   ...commonOptions.value,
   scales: {
@@ -190,9 +193,7 @@ const lightPercentageOptions = computed<ChartOptions<'line'>>(() => ({
   }
 }))
 
-
-
-// --- Helper: Create Dashed Line Canvas for Legend ---
+// 破線を描画するヘルパー関数(凡例も)
 const createDashedLineCanvas = (color: string) => {
   const canvas = document.createElement('canvas')
   canvas.width = 30
@@ -210,7 +211,7 @@ const createDashedLineCanvas = (color: string) => {
   return canvas
 }
 
-// --- Chart 1: Wakeup Count ---
+// 目が覚めた回数のグラフ
 const wakeupChartData = computed<ChartData<'line'>>(() => {
   const labels = sleepLogs.value.map(l => l.sleep_date)
   const data = sleepLogs.value.map(l => l.wakeup_count)
@@ -250,7 +251,7 @@ const wakeupChartData = computed<ChartData<'line'>>(() => {
   }
 })
 
-// --- Chart 2: Light Sleep Percentage ---
+// 浅い睡眠の割合のグラフ
 const lightSleepChartData = computed<ChartData<'line'>>(() => {
   const labels = sleepLogs.value.map(l => l.sleep_date)
   const data = sleepLogs.value.map(l => l.light_sleep_percentage)
@@ -290,7 +291,7 @@ const lightSleepChartData = computed<ChartData<'line'>>(() => {
   }
 })
 
-// --- Chart 3: Deep Sleep Continuity ---
+// 深い睡眠の持続性のグラフ
 const deepSleepContinuityChartData = computed<ChartData<'line'>>(() => {
   const labels = sleepLogs.value.map(l => l.sleep_date)
   const data = sleepLogs.value.map(l => l.deep_sleep_continuity)
@@ -330,7 +331,7 @@ const deepSleepContinuityChartData = computed<ChartData<'line'>>(() => {
   }
 })
 
-// --- Chart 4: Deep Sleep Percentage ---
+// 深い睡眠の割合のグラフ
 const deepSleepPercentageChartData = computed<ChartData<'line'>>(() => {
   const labels = sleepLogs.value.map(l => l.sleep_date)
   const data = sleepLogs.value.map(l => l.deep_sleep_percentage)
@@ -390,7 +391,7 @@ const deepSleepPercentageChartData = computed<ChartData<'line'>>(() => {
     <div v-else-if="error" class="text-center text-red-500 py-10">{{ error }}</div>
 
     <div v-else class="space-y-6">
-      <!-- Chart 1 -->
+      <!-- グラフ1 -->
       <Card>
         <CardHeader>
           <CardTitle>目が覚めた回数</CardTitle>
@@ -400,7 +401,7 @@ const deepSleepPercentageChartData = computed<ChartData<'line'>>(() => {
         </CardContent>
       </Card>
 
-      <!-- Chart 3 -->
+      <!-- グラフ2 -->
       <Card>
         <CardHeader>
           <CardTitle>深い睡眠の持続性</CardTitle>
@@ -410,7 +411,7 @@ const deepSleepPercentageChartData = computed<ChartData<'line'>>(() => {
         </CardContent>
       </Card>
 
-      <!-- Chart 4 -->
+      <!-- グラフ3 -->
       <Card>
         <CardHeader>
           <CardTitle>深い睡眠の割合</CardTitle>
@@ -420,7 +421,7 @@ const deepSleepPercentageChartData = computed<ChartData<'line'>>(() => {
         </CardContent>
       </Card>
 
-      <!-- Chart 2 -->
+      <!-- グラフ4 -->
       <Card>
         <CardHeader>
           <CardTitle>浅い睡眠の割合</CardTitle>

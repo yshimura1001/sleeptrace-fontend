@@ -31,9 +31,10 @@ const importStatus = ref<{ type: 'success' | 'error'; message: string; details?:
 const isImporting = ref(false)
 
 const handleExport = async () => {
+    const errorMessage = 'エクスポートに失敗しました。'
     try {
         const res = await authFetch('/api/csv/export')
-        if (!res.ok) throw new Error('Export failed')
+        if (!res.ok) throw new Error(errorMessage)
         const blob = await res.blob()
         const url = window.URL.createObjectURL(blob)
         const a = document.createElement('a')
@@ -44,8 +45,8 @@ const handleExport = async () => {
         document.body.removeChild(a)
         window.URL.revokeObjectURL(url)
     } catch (e) {
-        console.error('Export failed', e)
-        alert('エクスポートに失敗しました')
+        console.error(errorMessage, e)
+        alert(errorMessage)
     }
 }
 
@@ -72,7 +73,7 @@ const handleImport = async (event: Event) => {
 
     if (!res.ok) {
       const err = await res.json()
-      let errorMessage = 'インポートに失敗しました'
+      let errorMessage = 'インポートに失敗しました。'
       if (err.error) {
         if (typeof err.error === 'string') {
           errorMessage = err.error
@@ -92,7 +93,7 @@ const handleImport = async (event: Event) => {
   } catch (e) {
     importStatus.value = {
       type: 'error',
-      message: e instanceof Error ? e.message : 'インポートに失敗しました'
+      message: e instanceof Error ? e.message : 'インポートに失敗しました。'
     }
   } finally {
     isImporting.value = false

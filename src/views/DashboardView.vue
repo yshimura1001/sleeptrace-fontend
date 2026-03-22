@@ -35,7 +35,7 @@ const fetchData = async () => {
        if (statsRes.status === 403 || weeklyRes.status === 403) {
            throw new Error('このユーザーのデータは公開されていません。')
        }
-       throw new Error('Failed to fetch dashboard data')
+       throw new Error('ダッシュボードのデータを取得(フェッチ)できませんでした。')
     }
 
     const statsJson = await statsRes.json()
@@ -44,7 +44,7 @@ const fetchData = async () => {
     statsData.value = statsJson.data
     weeklyData.value = weeklyJson.data
   } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Unknown error'
+    error.value = e instanceof Error ? e.message : '不明なエラーです。'
   } finally {
     loading.value = false
   }

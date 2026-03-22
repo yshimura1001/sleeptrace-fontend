@@ -47,12 +47,7 @@ const router = createRouter({
       component: () => import('../views/SleepAnalysisView.vue'),
       meta: { requiresAuth: true }
     },
-    {
-      path: '/about',
-      name: 'about',
-      component: () => import('../views/AboutView.vue'),
-    },
-    {
+{
       path: '/users',
       name: 'users',
       component: () => import('../views/UserListView.vue'),

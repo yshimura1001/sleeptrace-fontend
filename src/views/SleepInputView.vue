@@ -54,8 +54,8 @@ const formatTimeFromParts = (hour: number, minute: number): string => {
 }
 
 // 時間選択肢の生成
-const hourOptions = Array.from({ length: 25 }, (_, i) => i)
-const minuteOptions = Array.from({ length: 60 }, (_, i) => i)
+const hourOptions = [...Array(25).keys()]
+const minuteOptions = [...Array(60).keys()]
 
 
 

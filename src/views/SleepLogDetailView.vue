@@ -75,8 +75,8 @@ const parseTime = (time: string): { hour: number; minute: number } => {
 }
 
 // 時間選択肢の生成
-const hourOptions = Array.from({ length: 25 }, (_, i) => i)
-const minuteOptions = Array.from({ length: 60 }, (_, i) => i)
+const hourOptions = [...Array(25).keys()]
+const minuteOptions = [...Array(60).keys()]
 
 const fetchLog = async () => {
   loading.value = true

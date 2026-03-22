@@ -80,7 +80,7 @@ const calculateTrendLine = (data: number[]) => {
   const n = data.length
   if (n === 0) return []
 
-  const x = Array.from({ length: n }, (_, i) => i) // 0, 1, 2...
+  const x = [...Array(n).keys()] // 0, 1, 2...
   const y = data
 
   const sumX = x.reduce((a, b) => a + b, 0)

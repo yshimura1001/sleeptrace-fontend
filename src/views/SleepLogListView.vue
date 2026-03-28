@@ -131,8 +131,8 @@ const formatMonthDisplay = (monthStr: string) => {
 }
 
 const getStyle = (val: number, min: number, max: number) => {
-  if (val < min) return 'bg-blue-400 text-white'
-  if (val > max) return 'bg-red-400 text-white'
+  if (val <= min) return 'bg-blue-400 text-white'
+  if (val >= max) return 'bg-red-400 text-white'
   return ''
 }
 

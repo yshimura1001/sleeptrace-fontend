@@ -139,10 +139,10 @@ const getStyle = (val: number, min: number, max: number) => {
 const getColorClass = (columnName: string, value: number) => {
   switch (columnName) {
     case 'wakeup_count':
-      return getStyle(value, 0, 2)
+      return getStyle(value, -1, 2)
 
     case 'deep_sleep_continuity':
-      return getStyle(value, 70, 100)
+      return getStyle(value, 69, 100)
 
     case 'deep_sleep_percentage':
       return getStyle(value, 20, 60)

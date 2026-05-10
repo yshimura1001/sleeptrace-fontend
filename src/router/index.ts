@@ -64,12 +64,19 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
+  const isLoginRoute = to.name === 'login'
 
-  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next('/login')
-  } else {
-    next()
+  if (isLoginRoute && authStore.isAuthenticated) {
+    next('/')
+    return
   }
+
+  if (!isLoginRoute && !authStore.isAuthenticated) {
+    next('/login')
+    return
+  }
+
+  next()
 })
 
 export default router

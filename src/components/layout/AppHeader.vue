@@ -50,7 +50,7 @@ const handleLogout = () => {
           <img src="/favicon.svg" alt="SleepTrace" class="h-8 w-8" />
           <span class="text-xl font-bold" :class="isViewMode ? 'text-background' : 'text-foreground'">SleepTrace</span>
         </RouterLink>
-        <nav class="hidden md:flex gap-6">
+        <nav v-if="authStore.isAuthenticated && authStore.user" class="hidden md:flex gap-6">
           <RouterLink
             :to="{ path: '/', query: route.query }"
             :class="navLinkClass"

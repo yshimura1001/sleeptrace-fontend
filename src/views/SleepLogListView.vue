@@ -151,7 +151,7 @@ const getColorClass = (columnName: string, value: number) => {
       return getStyle(value, 0, 55)
 
     case 'rem_sleep_percentage':
-      return getStyle(value, 10, 30)
+      return getStyle(value, 10, 31)
 
     default:
       return ''
